@@ -1,6 +1,6 @@
 # 0004: Supabase as the backend
 
-- **Status:** proposed
+- **Status:** accepted
 - **Date:** 2026-10-28
 
 ## Context
@@ -15,7 +15,7 @@ Households need accounts, shared data that updates live for every member, photo 
 
 ## Decision
 
-Option 1 (proposed):
+Option 1, hosted in the EU (Frankfurt), the closest region to Romania and keeps data in the EU for GDPR:
 
 - The data is relational: products, shops, receipts and their lines, recipes with variants and versions.
 - Price comparison and spending reports are plain SQL queries.
@@ -25,4 +25,5 @@ Option 1 (proposed):
 
 - The offline shopping list needs a small local cache in each app; Firebase would give this for free.
 - Edge functions are written in TypeScript (Deno).
-- Hosted free tier is enough for the hackathon and family use.
+- **Cost:** the free plan covers the hackathon and family use (500 MB database, about 1 GB storage), but it pauses after 7 days without use and has no backups. Move to Pro ($25/month) once other households depend on the app.
+- Receipt photos are the main storage cost: shrink them before upload.

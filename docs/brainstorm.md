@@ -90,7 +90,6 @@ flowchart LR
 
 ## Open questions
 
-- Backend: Supabase (proposed) or Firebase? See [0004](decisions/0004-backend.md).
 - App language: English (for the judges), Romanian (for the family), or both? Recipes could follow the user's language either way.
 - How well does Open Food Facts cover products sold in Romania? Check early with a few real barcodes.
 
@@ -100,6 +99,7 @@ flowchart LR
 - Households from day one, and open to other users.
 - Mobile only, native. iOS first for the hackathon, Android after ([0002](decisions/0002-native-mobile-apps.md)).
 - Meta Muse models first, swappable later ([0003](decisions/0003-meta-muse-models.md)).
+- Supabase backend, hosted in the EU ([0004](decisions/0004-backend.md)).
 - Romania first (RON), then Europe (EUR).
 - Prices pooled anonymously across all households ([0005](decisions/0005-pooled-price-data.md)).
 - Hackathon: indie track.
