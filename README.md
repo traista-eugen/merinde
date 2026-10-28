@@ -1,8 +1,8 @@
 # Merinde
 
-> _One-line pitch: TBD_
+> A household food app: AI recipes you refine in place, meal plans that use what you have before it expires, and a shared shopping list that knows which shop is cheapest.
 
-**Status:** brainstorming
+**Status:** planning. Native iOS app first (Android after), built with Meta's Muse models for the Meta Global AI Developer Hackathon (submission due 4 Nov 2026). Launching in Romania.
 
 ## Docs
 
