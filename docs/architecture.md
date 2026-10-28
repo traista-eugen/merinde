@@ -9,7 +9,7 @@ _Draft, 2026-10-28._
 | iOS app | Swift, SwiftUI; ships first | decided ([0002](decisions/0002-native-mobile-apps.md)) |
 | Android app | Kotlin, Jetpack Compose; after the hackathon | decided ([0002](decisions/0002-native-mobile-apps.md)) |
 | Backend | Supabase (EU, Frankfurt): Postgres, Auth, Realtime, Storage, Edge Functions | decided ([0004](decisions/0004-backend.md)) |
-| AI | Meta Model API, `muse-spark-1.2` for text and images, called only from the backend | decided ([0003](decisions/0003-meta-muse-models.md)) |
+| AI | Meta Model API, `muse-spark-1.3` for text and images (`muse-spark-1.2` only for audio), called only from the backend; details in [ai-models.md](ai-models.md) | decided ([0003](decisions/0003-meta-muse-models.md)) |
 | Barcode scanning | On device: Apple VisionKit, Google ML Kit | proposed |
 | Product and nutrition data | Open Food Facts API | proposed |
 | Voice input | On-device speech-to-text, then the same text parser as typed input | proposed |
