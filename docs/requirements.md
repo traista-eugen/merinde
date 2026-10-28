@@ -77,4 +77,6 @@ Each story becomes one GitHub issue; add the issue number once created.
 - **Users:** accounts and households; pantry, plan, list, recipe and expense data is shared within a household and private to it.
 - **Performance:** every AI action shows progress; nothing blocks the app while the model works.
 - **Security / privacy:** prices are pooled anonymously across households; receipts and photos stay private; receipt parsing drops personal data; GDPR privacy notice before opening to other households.
+- **Languages:** English and Romanian, following the phone; AI output in the app language ([0006](decisions/0006-app-languages.md)).
 - **Accessibility:** Dynamic Type and VoiceOver labels on every screen.
+- **Design:** follows [docs/design](design/README.md).
