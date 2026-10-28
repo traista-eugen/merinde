@@ -7,7 +7,7 @@ Each milestone here has a matching GitHub milestone. Issues are the source of tr
 ## M0: Foundations (28–29 Oct)
 
 - [x] Vision and brainstorm written
-- [x] Stack decided: native apps (iOS first), Meta Muse models (backend proposed)
+- [x] Stack decided: native apps (iOS first), Meta Muse models, Supabase
 - [x] MVP user stories written and turned into issues
 - [ ] Backend: schema, auth, households and invites working ([#21](https://github.com/traista-eugen/merinde/issues/21), [#1](https://github.com/traista-eugen/merinde/issues/1), [#2](https://github.com/traista-eugen/merinde/issues/2))
 - [ ] iOS skeleton: sign in, create or join a household ([#22](https://github.com/traista-eugen/merinde/issues/22))
