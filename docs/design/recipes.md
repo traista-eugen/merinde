@@ -1,6 +1,6 @@
 # Recipe screens
 
-_Draft, 2026-10-28. Stories: [#3](https://github.com/traista-eugen/merinde/issues/3)–[#7](https://github.com/traista-eugen/merinde/issues/7), [#10](https://github.com/traista-eugen/merinde/issues/10). Build day: 30 Oct._
+_Approved by the user 2026-10-28. Stories: [#3](https://github.com/traista-eugen/merinde/issues/3)–[#7](https://github.com/traista-eugen/merinde/issues/7), [#10](https://github.com/traista-eugen/merinde/issues/10). Build day: 30 Oct._
 
 The recipe is the document: no chat transcript, ever. A request either updates the current variant (new version) or creates a new variant.
 

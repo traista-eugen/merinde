@@ -1,6 +1,6 @@
 # Navigation
 
-_Draft, 2026-10-28. Decision: [0007](../decisions/0007-navigation.md)._
+_Approved by the user 2026-10-28. Decision: [0007](../decisions/0007-navigation.md)._
 
 ## Tabs
 

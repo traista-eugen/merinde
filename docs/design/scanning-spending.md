@@ -1,6 +1,6 @@
 # Scanning and spending screens
 
-_Draft, 2026-10-28. Stories: [#16](https://github.com/traista-eugen/merinde/issues/16)–[#20](https://github.com/traista-eugen/merinde/issues/20). Build days: 2–3 Nov. AI states follow [design-system.md](design-system.md#ai-action-states)._
+_Approved by the user 2026-10-28. Stories: [#16](https://github.com/traista-eugen/merinde/issues/16)–[#20](https://github.com/traista-eugen/merinde/issues/20). Build days: 2–3 Nov. AI states follow [design-system.md](design-system.md#ai-action-states)._
 
 Cameras are the system ones; we only design what comes after them. Photos are sent as JPEG (the API takes no HEIC).
 

@@ -1,6 +1,6 @@
 # Design system
 
-_Draft, 2026-10-28. Direction agreed with the user: warm cookbook, paprika accent, Apple-native components._
+_Approved by the user 2026-10-28. Direction agreed with the user: warm cookbook, paprika accent, Apple-native components._
 
 Every token maps to something SwiftUI already has: asset-catalog colours, built-in `Font` text styles, standard controls. Custom views only where no standard one exists (marked **custom**).
 

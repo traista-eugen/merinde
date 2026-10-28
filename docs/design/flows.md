@@ -1,6 +1,6 @@
 # Key flows
 
-_Draft, 2026-10-28. Screens are specced in [recipes.md](recipes.md), [pantry-plan-list.md](pantry-plan-list.md) and [scanning-spending.md](scanning-spending.md)._
+_Approved by the user 2026-10-28. Screens are specced in [recipes.md](recipes.md), [pantry-plan-list.md](pantry-plan-list.md) and [scanning-spending.md](scanning-spending.md)._
 
 ## 1. Write a recipe, refine it in place, make a variant
 

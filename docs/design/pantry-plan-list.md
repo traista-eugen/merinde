@@ -1,6 +1,6 @@
 # Pantry, plan and list screens
 
-_Draft, 2026-10-28. Stories: [#8](https://github.com/traista-eugen/merinde/issues/8)–[#15](https://github.com/traista-eugen/merinde/issues/15). Build days: 31 Oct – 1 Nov. AI states follow [design-system.md](design-system.md#ai-action-states)._
+_Approved by the user 2026-10-28. Stories: [#8](https://github.com/traista-eugen/merinde/issues/8)–[#15](https://github.com/traista-eugen/merinde/issues/15). Build days: 31 Oct – 1 Nov. AI states follow [design-system.md](design-system.md#ai-action-states)._
 
 ## Pantry (tab root)
 

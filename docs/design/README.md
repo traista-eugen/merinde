@@ -20,7 +20,7 @@ UI and UX for the Merinde iOS app. Tracked in [#27](https://github.com/traista-e
 | [flows.md](flows.md) | The four key flows, step by step | Approved with the screens |
 | [recipes.md](recipes.md) | Recipe list, new recipe, recipe page, change bar, history | Approved 28 Oct |
 | [pantry-plan-list.md](pantry-plan-list.md) | Pantry, add food, review, item, cooked it, plan, list, compare shops, done shopping | Approved 28 Oct |
-| [scanning-spending.md](scanning-spending.md) | Receipt review, fix match, barcode, expiry label, spending, product price history | Draft, awaiting review |
+| [scanning-spending.md](scanning-spending.md) | Receipt review, fix match, barcode, expiry label, spending, product price history | Approved 28 Oct |
 | [brand.md](brand.md) | Logo (Steam m), app icon layers, lockups; SVGs in [brand/](brand/) | Approved 28 Oct |
 | [design-system.md](design-system.md) | Colour, type, spacing, components, AI states, language, accessibility | Approved 28 Oct |
 
