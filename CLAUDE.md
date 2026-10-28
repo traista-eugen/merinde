@@ -15,4 +15,6 @@ Merinde is a household food app: AI recipes with variants, pantry with expiry tr
 - New ideas go in `docs/brainstorm.md` first, not straight into requirements.
 - Each MVP user story in `docs/requirements.md` maps to one GitHub issue; link the issue number back.
 - All AI calls go through the backend. Never put the Meta API key in an app, and never use the `-contributor` model tier (see decision 0003).
+- No GitHub Actions. Run your checks locally and post them as commit statuses with `scripts/status.sh` (see "Building in parallel" in `docs/workflow.md`).
+- Never merge your own PR. Only the coordinating session merges, and only when every required status is `success` and the review is clean.
 - Keep docs short: bullets and tables over prose.
