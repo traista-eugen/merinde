@@ -147,7 +147,7 @@ App in English and Romanian, following the phone ([0006](../decisions/0006-app-l
 - One String Catalog (`Localizable.xcstrings`), English as the development language.
 - Leave 30% extra room: no fixed-width labels; button rows switch to stacked with `ViewThatFits`.
 - Plurals through String Catalog variants. Romanian has three forms: "1 zi", "2 zile", "20 de zile".
-- Dates, quantities and money through `FormatStyle` with the current locale: `12,50 RON` in Romanian, `RON 12.50` in English. Dates: "Thu 30 Oct" / "joi, 30 oct.".
+- Dates, quantities and money through `FormatStyle` with the current locale; money as `.currency(code: "RON")`. Mockups show the Romanian-region form `84,20 RON`. Dates: "Thu 30 Oct" / "joi, 30 oct.".
 - AI output (recipes, plans, parsed items) comes back in the app language. Shop and product names keep the receipt's text.
 
 ## Accessibility

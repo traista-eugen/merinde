@@ -19,7 +19,7 @@ UI and UX for the Merinde iOS app. Tracked in [#27](https://github.com/traista-e
 | [navigation.md](navigation.md) | Tabs, screen map, where scanning and settings live, first run, welcome video | Approved 28 Oct |
 | [flows.md](flows.md) | The four key flows, step by step | Draft |
 | [recipes.md](recipes.md) | Recipe list, new recipe, recipe page, change bar, history | Approved 28 Oct |
-| [pantry-plan-list.md](pantry-plan-list.md) | Pantry, add food, plan, shopping list | Not yet written |
+| [pantry-plan-list.md](pantry-plan-list.md) | Pantry, add food, review, item, cooked it, plan, list, compare shops, done shopping | Draft, awaiting review |
 | [scanning-spending.md](scanning-spending.md) | Receipt review, barcode, expiry label, spending, price history | Not yet written |
 | [brand.md](brand.md) | Logo (Steam m), app icon layers, lockups; SVGs in [brand/](brand/) | Approved 28 Oct |
 | [design-system.md](design-system.md) | Colour, type, spacing, components, AI states, language, accessibility | Approved 28 Oct |
@@ -30,7 +30,7 @@ UI and UX for the Merinde iOS app. Tracked in [#27](https://github.com/traista-e
 |-----|---------|-------------|
 | 29 Oct (skeleton) | Tabs, Welcome, Household setup, Household sheet | 1 · Navigation & recipes |
 | 30 Oct | Recipe list, New recipe, Recipe, change bar, History | 1 · Navigation & recipes |
-| 31 Oct – 1 Nov | Pantry, Add food, Cooked it, Plan, List | 2 (coming) |
+| 31 Oct – 1 Nov | Pantry, Add food, Cooked it, Plan, List | 2 · Pantry, plan & list |
 | 2–3 Nov | Receipt review, barcode, expiry label, Spending, price history | 3 (coming) |
 
 ## For the iOS build
