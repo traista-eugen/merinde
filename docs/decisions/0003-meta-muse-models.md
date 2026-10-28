@@ -2,6 +2,7 @@
 
 - **Status:** accepted
 - **Date:** 2026-10-28
+- **Updated:** 2026-10-28: `muse-spark-1.2` → `muse-spark-1.3`, see [ai-models.md](../ai-models.md)
 
 ## Context
 
@@ -17,12 +18,14 @@ The app is built for the Meta Global AI Developer Hackathon, which is built arou
 Option 2, with the Meta Model API:
 
 - Base URL `https://api.meta.ai/v1`, OpenAI-SDK compatible, API key kept server-side only.
-- Model `muse-spark-1.2` for both text and image tasks (check the [models page](https://ai.developer.meta.com/docs/models/) for newer versions).
-- **Not** the `-contributor` tier: it's cheaper, but Meta may train on prompts and outputs, and we send family receipts and pantry data.
-- Every AI call returns JSON checked against a schema before it's saved.
+- Model `muse-spark-1.3` for all text and image-reading tasks: Meta's recommended version, same price as 1.2 ($1.25 in / $4.25 out per 1M tokens). Use `muse-spark-1.2` only if we send audio, which 1.3 doesn't fully support yet. Check the [models page](https://dev.meta.ai/docs/models) for newer versions.
+- `muse-image-1.0` if we generate recipe photos ($0.01 each). Muse Wonder, Muse Voice Transcribe, SAM 3.1 and the open-weight models aren't used for now; see [ai-models.md](../ai-models.md).
+- **Not** the `-contributor` tier: it's 12–20× cheaper, but Meta may train on prompts and outputs, and we send family receipts and pantry data.
+- Every AI call uses structured output (`json_schema`) and is checked against the schema before it's saved.
+- The model ID is set per function in backend config, so upgrading a model doesn't touch prompts or the apps.
 
 ## Consequences
 
 - No API key in the apps; both platforms get identical AI behaviour.
 - Switching provider means changing the wrapper and retuning prompts, not touching the apps.
-- The Meta Model API is in preview, so models and limits may change. Hackathon credits cover early usage.
+- The Meta Model API is in preview, so models and limits may change. Hackathon credits cover early usage: roughly $0.004–0.05 per call, about $5 per family per month ([ai-models.md](../ai-models.md)).

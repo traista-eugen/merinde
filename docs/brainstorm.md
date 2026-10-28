@@ -37,6 +37,7 @@ flowchart LR
 - `mvp` Version history per variant: see what changed, undo a change.
 - `mvp` Recipes prefer pantry ingredients, flag anything missing, and offer a variant that avoids it.
 - `new` Scale servings; save favourites.
+- `new` A generated photo for each recipe (Muse Image, $0.01 each; see [ai-models.md](ai-models.md)).
 
 ### Pantry (stock)
 
@@ -66,6 +67,7 @@ flowchart LR
 - `mvp` Receipt: extract the shop, date, items, quantities and prices. Items go into the pantry; prices go into expenses and price history.
 - `mvp` Barcode: product name and nutrition (e.g. from Open Food Facts).
 - `mvp` Expiry date from a photo of the label.
+- `new` Photograph the fridge or a shelf to add several items at once (Muse Spark lists them; SAM 3.1 could outline each one).
 
 ### Expenses and prices
 
@@ -92,6 +94,7 @@ flowchart LR
 
 - App language: English (for the judges), Romanian (for the family), or both? Recipes could follow the user's language either way.
 - How well does Open Food Facts cover products sold in Romania? Check early with a few real barcodes.
+- Voice input in Romanian: Muse Voice Transcribe doesn't support it. Does Apple's on-device speech recognition handle Romanian well enough, or should we send audio to Muse Spark 1.2?
 
 ## Decided
 
