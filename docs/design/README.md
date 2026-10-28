@@ -16,11 +16,11 @@ UI and UX for the Merinde iOS app. Tracked in [#27](https://github.com/traista-e
 
 | Doc | What | Status |
 |-----|------|--------|
-| [navigation.md](navigation.md) | Tabs, screen map, where scanning and settings live, first run, demo household, welcome video | Approved 28 Oct; expanded-MVP changes awaiting review |
+| [navigation.md](navigation.md) | Tabs, screen map, where scanning and settings live, first run, demo household, welcome video | Approved 28 Oct, including the expanded MVP |
 | [flows.md](flows.md) | The four key flows, step by step | Approved with the screens |
-| [recipes.md](recipes.md) | Recipe list, new recipe, recipe page, change bar, history | Approved 28 Oct; expanded-MVP changes awaiting review |
-| [pantry-plan-list.md](pantry-plan-list.md) | Pantry, update pantry, review changes, item, cooked it, reminders, plan for 1–7 days, list, compare shops, done shopping | Approved 28 Oct; expanded-MVP changes awaiting review |
-| [scanning-spending.md](scanning-spending.md) | Receipt review, fix match, barcode, expiry label, spending, product price history | Approved 28 Oct; expanded-MVP changes awaiting review |
+| [recipes.md](recipes.md) | Recipe list, new recipe, recipe page, change bar, history | Approved 28 Oct, including the expanded MVP |
+| [pantry-plan-list.md](pantry-plan-list.md) | Pantry, update pantry, review changes, item, cooked it, reminders, plan for 1–7 days, list, compare shops, done shopping | Approved 28 Oct, including the expanded MVP |
+| [scanning-spending.md](scanning-spending.md) | Receipt review, fix match, barcode, expiry label, spending, product price history | Approved 28 Oct, including the expanded MVP |
 | [brand.md](brand.md) | Logo (Steam m), app icon layers, lockups; SVGs in [brand/](brand/) | Approved 28 Oct |
 | [design-system.md](design-system.md) | Colour, type, spacing, components, AI states, language, accessibility | Approved 28 Oct |
 
