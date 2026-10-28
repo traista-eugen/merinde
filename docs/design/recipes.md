@@ -1,6 +1,6 @@
 # Recipe screens
 
-_Approved by the user 2026-10-28. Stories: [#3](https://github.com/traista-eugen/merinde/issues/3)–[#7](https://github.com/traista-eugen/merinde/issues/7), [#10](https://github.com/traista-eugen/merinde/issues/10). Build day: 30 Oct._
+_Approved by the user 2026-10-28. Stories: [#3](https://github.com/traista-eugen/merinde/issues/3)–[#7](https://github.com/traista-eugen/merinde/issues/7), [#10](https://github.com/traista-eugen/merinde/issues/10), [#28](https://github.com/traista-eugen/merinde/issues/28), [#30](https://github.com/traista-eugen/merinde/issues/30), [#31](https://github.com/traista-eugen/merinde/issues/31), [#37](https://github.com/traista-eugen/merinde/issues/37). Build day: 30 Oct._
 
 The recipe is the document: no chat transcript, ever. A request either updates the current variant (new version) or creates a new variant.
 
@@ -10,9 +10,10 @@ The recipe is the document: no chat transcript, ever. A request either updates t
 |-|-|
 | Title | "Recipes", large serif |
 | Toolbar | Household button (left), `+` New recipe (right) |
-| Content | `.searchable` list; each row: cover tile (46 pt, initial), name (Name style), meta line "2 variants · 50 min", pantry pill ("Have all" in Herb, "1 low" in Saffron, "1 missing" in Beet) |
+| Content | `.searchable` list; each row: cover tile (46 pt, initial), name (Name style) with a heart if a variant is a favourite, meta line "2 variants · 50 min", pill: an allergy conflict ("Mihai: nuts", Beet) wins over the pantry state ("Have all" Herb, "1 low" Saffron, "1 missing" Beet) |
+| Filter | Chips under search: All, Favourites ([#31](https://github.com/traista-eugen/merinde/issues/31)) |
 | Order | Recently edited or cooked first |
-| Row actions | Tap → Recipe. Swipe: Add to tomorrow, Delete (confirm) |
+| Row actions | Tap → Recipe. Swipe: Add to plan, Favourite, Delete (confirm) |
 | Working row | A recipe still being written shows at the top: the request in italics, "Writing…" with a `ProgressView`; tap opens the Recipe in its working state |
 | Empty | `ContentUnavailableView`: book symbol, "No recipes yet", "Ask for anything: 'quick dinner with the spinach'.", button "New recipe" |
 | No search results | `ContentUnavailableView.search` |
@@ -24,7 +25,7 @@ The recipe is the document: no chat transcript, ever. A request either updates t
 | Title | "New recipe", inline; Cancel (left) |
 | Field | Multi-line, focused on open, mic button. Placeholder "What do you feel like?" |
 | Suggestions | Chips that fill the field: "Use what's expiring", "Quick dinner", "Soup", "Vegetarian", "Kid-friendly" |
-| Options | "Use what's in the pantry" toggle (on); Servings stepper (household default, 4) |
+| Options | "Use what's in the pantry" toggle (on); Who's eating (member initials, all on; diets and allergies of those eating apply, [#28](https://github.com/traista-eugen/merinde/issues/28)); Servings stepper (household default, 4) |
 | Footer | Line: "3 items expire in the next 2 days" when relevant |
 | Action | "Write recipe" (`.borderedProminent`, full width), disabled while the field is empty |
 | On tap | Sheet closes, Recipe pushes in its working state |
@@ -34,17 +35,20 @@ The recipe is the document: no chat transcript, ever. A request either updates t
 Top to bottom, in one `ScrollView` on `Paper`:
 
 1. **Cover header:** full-width block in the recipe's cover colour ([covers](design-system.md#recipe-covers)), extending under the toolbar. Title in white Display serif, wraps; faint large initial behind it.
-2. **Meta line** inside the cover, white 88%: "4 servings · 50 min · uses 3 expiring" (with `clock`).
-3. **Variant chips:** one per variant, then "+ Variant". One tap switches. Long press: Rename, Delete. Off: `.bordered` tinted `Ink`; on: `.borderedProminent`.
-4. **Pantry card** (only if something is missing or not enough): "1 missing, 1 not enough", the names, buttons "Variant without them" and "Add to list".
-5. **Ingredients:** status symbol, quantity (Figures, semibold), name, note under the name ("You have 100 ml", "Missing"), expiry pill on the right. Use a `Grid` so the quantity column fits the widest entry ("1 legătură" in Romanian).
-6. **Steps:** numbered, serif numbers in accent, Body text.
-7. **Cooked it** (`.bordered`, full width) → Cooked it sheet ([#10](https://github.com/traista-eugen/merinde/issues/10)).
-8. **Footer:** "Version 2 of Original · edited by Ioana, 18:42". Tap → History.
+2. **Meta line** inside the cover, white 88%: "50 min · uses 3 expiring" (with `clock`).
+3. **Variant chips:** one per variant, then "+ Variant". One tap switches. Long press: Rename, Delete. Off: `.bordered` tinted `Ink`; on: `.borderedProminent`. Favourite variants show a small heart.
+4. **Allergy card** (only when the recipe conflicts with someone eating, [#28](https://github.com/traista-eugen/merinde/issues/28)): Beet-tinted with a Beet outline and `exclamationmark.triangle`: "Contains almonds", "Mihai is allergic to nuts.", buttons "Variant without almonds" and "Mihai isn't eating". The check runs in code against the allergy list, not only in the prompt. The ingredient row is tinted and says "Nuts · Mihai is allergic".
+5. **Pantry card** (only if something is missing or not enough): "1 missing, 1 not enough", the names, buttons "Variant without them" and "Add to list".
+6. **Servings** ([#30](https://github.com/traista-eugen/merinde/issues/30)): stepper; all quantities rescale with sensible rounding (whole eggs and pieces, 5 g steps under 100 g, 25 g above, ½ spoons); "Scaled from 4" when changed.
+7. **Nutrition strip** ([#37](https://github.com/traista-eugen/merinde/issues/37)): kcal, protein, carbs, fat per serving; `~` when any ingredient is estimated. Tap → Nutrition section under the steps (per serving, source per ingredient: Open Food Facts or estimate).
+8. **Ingredients:** status symbol, quantity (Figures, semibold), name, note under the name ("You have 100 ml", "Missing"), expiry pill on the right. Use a `Grid` so the quantity column fits the widest entry ("1 legătură" in Romanian).
+9. **Steps:** numbered, serif numbers in accent, Body text.
+10. **Cooked it** (`.bordered`, full width) → Cooked it sheet ([#10](https://github.com/traista-eugen/merinde/issues/10)), using the scaled amounts.
+11. **Footer:** "Version 2 of Original · edited by Ioana, 18:42". Tap → History.
 
 | | |
 |-|-|
-| Toolbar | History (`clock.arrow.circlepath`), More (`ellipsis`): Add to tomorrow, Cooked it, Share, Rename variant, Delete. Inline title appears once the big title scrolls away |
+| Toolbar | Favourite heart (per variant, [#31](https://github.com/traista-eugen/merinde/issues/31)), History (`clock.arrow.circlepath`), More (`ellipsis`): Add to plan, Cooked it, Share, Rename variant, Delete. Inline title appears once the big title scrolls away |
 | Tab bar | Hidden on this screen (`.toolbar(.hidden, for: .tabBar)`), so the change bar owns the bottom edge |
 | Change bar | Floating at the bottom (below) |
 | Highlights | After an update, changed ingredients and steps get the `Highlight` background until the next change or leaving the screen |

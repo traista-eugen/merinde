@@ -19,20 +19,21 @@ Stories [#3](https://github.com/traista-eugen/merinde/issues/3)–[#7](https://g
 - **One tap from the pantry card:** "Variant without them" sends a pre-written request ("without phyllo sheets and sour cream") straight to step 7. "Add to list" adds the missing items.
 - **Undo** restores version 1 as version 3; history is never lost.
 
-## 2. Plan tomorrow, shop, restock
+## 2. Plan the next days, shop, restock
 
-Stories [#11](https://github.com/traista-eugen/merinde/issues/11)–[#15](https://github.com/traista-eugen/merinde/issues/15).
+Stories [#11](https://github.com/traista-eugen/merinde/issues/11)–[#15](https://github.com/traista-eugen/merinde/issues/15), [#29](https://github.com/traista-eugen/merinde/issues/29), [#35](https://github.com/traista-eugen/merinde/issues/35), [#36](https://github.com/traista-eugen/merinde/issues/36).
 
 | # | Where | User | App |
 |---|-------|------|-----|
-| 1 | Plan | Taps Plan tomorrow | `meal-plan`; skeleton meal cards; "Using spinach (tomorrow), yogurt (2 days)…" |
-| 2 | Plan | Reviews meals; swaps one | Swap sheet: Regenerate, or pick a saved recipe |
-| 3 | Plan | Taps "Add 6 missing to list" | Merged into the list, no duplicates; toast "Added 6 items · Undo" |
-| 4 | List (in the store) | Reads the cheapest-shop card | "Cheapest: Lidl ≈ 84 RON · 5 of 6 items priced" |
-| 5 | List | Ticks items with a thumb | Item moves to "In the cart", haptic, added to the pantry with an estimated expiry. Everyone's list updates live |
+| 1 | Plan | Sets 3 days, picks meals per day, taps Plan 6 meals | `meal-plan` with everyone's diets; skeleton cards; "Planning 3 days… spinach, dill and chicken first" |
+| 2 | Plan | Reviews the days; plans one meal or a whole day again | Swap sheet: Plan again, or pick a saved recipe (favourites first) |
+| 3 | Plan | Taps "Add to list" on "11 missing for 3 days" | Merged into the list, no duplicates; toast "Added 11 items · Undo" |
+| 4 | List (in the store) | Reads the cheapest-shop card | "Lidl ≈ 84 RON · split Kaufland + Lidl saves 6 RON" |
+| 5 | List | Ticks items with a thumb, even with no signal | Item moves to "In the cart" with their initials, haptic, added to the pantry with an estimated expiry. Offline ticks sync later |
 | 6 | List | Unticks by mistake | Removed from the pantry again |
-| 7 | List | Taps Done shopping | Sheet: "6 items added to the pantry. Scan the receipt to record prices." Scan receipt / Not now |
+| 7 | List | Taps Done shopping | Sheet: "6 items went to the pantry. Scan the receipt to record what you paid." Scan receipt / Not now |
 | 8 | Pantry | — | New items show with estimated dates (`~`) |
+
 
 ## 3. Scan a receipt, review matches, save
 

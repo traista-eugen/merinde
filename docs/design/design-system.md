@@ -120,6 +120,10 @@ SF Symbols, `.symbolRenderingMode(.hierarchical)` where it helps. Tabs: `calenda
 | Empty / error | `ContentUnavailableView` with actions | Copy per screen in the screen specs |
 | Undo toast | **custom** capsule above the tab bar, 4 s, one action | "Added to pantry · Undo". Posts a VoiceOver announcement |
 | Sheets | `.sheet` + `.presentationDetents([.medium, .large])` | |
+| Allergy alert | **custom** card: Beet 13% fill, Beet 45% outline, `exclamationmark.triangle`, two actions | The only card with an outline: safety beats calm |
+| Have / Low / Out | `Picker` with `.segmented` style, selected segment tinted Herb / Saffron / Beet | Staples in rough mode |
+| Offline banner | **custom** Saffron-tinted row with `icloud.slash` | Also a sync icon on rows waiting to upload |
+| Notifications | `UNUserNotificationCenter`, category with two actions | Content in [pantry-plan-list.md](pantry-plan-list.md#reminders) |
 | Search | `.searchable` | Recipes, Pantry |
 | Charts | Swift Charts `BarMark`, `LineMark` | Spending, price history |
 | Scanners | `VNDocumentCameraViewController` (receipt), `DataScannerViewController` (barcode, label text) | System UI, wrapped in `UIViewControllerRepresentable` |
@@ -132,7 +136,7 @@ All seven AI functions follow one pattern ([NFR: nothing blocks](../requirements
 
 | State | What the user sees |
 |-------|--------------------|
-| Ready | A verb on a button ("Write recipe", "Plan tomorrow", "Read items"). No sparkles, no "AI" label |
+| Ready | A verb on a button ("Write recipe", "Plan 6 meals", "Read items"). No sparkles, no "AI" label |
 | Working, new content | The real layout, redacted, with one honest status line from data we already have ("Looking at 23 pantry items, 3 expiring soon") and a Stop button |
 | Working, editing | Existing content stays readable; progress sits in the control that started it ("Updating…") with Stop |
 | Left the screen | The job keeps running; the list row shows "Writing…"; a toast offers "Open" when done |

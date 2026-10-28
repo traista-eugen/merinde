@@ -8,7 +8,7 @@ Five tabs, the most an iPhone tab bar holds without "More". Same tabs as [#22](h
 
 | # | Tab (EN / RO) | Symbol | Root screen | Why |
 |---|---------------|--------|-------------|-----|
-| 1 | Plan / Plan | `calendar` | Tomorrow: meals, "use soon" strip, missing items | Starts the daily loop, and the first screen shows the whole idea: a plan built from what's about to expire |
+| 1 | Plan / Plan | `calendar` | Next days: meals per day, "use soon" strip, missing items | Starts the daily loop, and the first screen shows the whole idea: a plan built from what's about to expire |
 | 2 | Recipes / Rețete | `book.closed` | Recipe list | The hero feature; also reached from every planned meal |
 | 3 | List / Listă | `checklist` | Shopping list with cheapest shop | Opened in the store; the middle tab is easiest to reach |
 | 4 | Pantry / Cămară | `refrigerator` | Pantry sorted by expiry | Where food comes in: typing, voice, scans |
@@ -22,7 +22,7 @@ Five tabs, the most an iPhone tab bar holds without "More". Same tabs as [#22](h
 ```mermaid
 flowchart TB
     subgraph Plan
-        P[Tomorrow] -->|push| PR[Recipe]
+        P[Plan: next days] -->|push| PR[Recipe]
         P -.->|sheet| PS[Swap meal]
     end
     subgraph Recipes
@@ -63,7 +63,11 @@ Solid arrows push; dotted arrows open a sheet; cameras open full screen.
 | Household and settings | Household button (member initials) at the top left of every tab root → Household sheet | One household per user in MVP, so no switcher. The faces remind you the data is shared |
 | Price history | Product page, pushed from a pantry item, list item, receipt line or Spending's price changes | Prices belong to products |
 | Cooked it | Recipe: button under the steps, and the More menu | You're on the recipe when you finish cooking |
-| Add to plan | Recipe → More → Add to tomorrow | |
+| Add to plan | Recipe → More → Add to plan | |
+| Diets and allergies | Household sheet → a member → Diets and allergies ([#28](https://github.com/traista-eugen/merinde/issues/28)) | They belong to people, and every member can edit their own |
+| Expiry reminders | Notification → Use soon screen (Pantry tab); settings in Household sheet → You ([#39](https://github.com/traista-eugen/merinde/issues/39)) | |
+| Food waste | Spending → Food waste card ([#34](https://github.com/traista-eugen/merinde/issues/34)) | Waste is money |
+| Demo household | Welcome → Try the demo household; a DEMO badge replaces the household button on every tab ([#42](https://github.com/traista-eugen/merinde/issues/42)) | Always visible, one tap to reset or leave |
 
 ## Toolbar pattern
 
@@ -75,17 +79,18 @@ Solid arrows push; dotted arrows open a sheet; cameras open full screen.
 
 ## Household sheet
 
-- Household name and members (initials, "You").
-- Invite: `ShareLink` with the code and link; shows the 6-character code large.
-- Language: "Follows your iPhone (English)", opens the app's page in Settings.
-- Privacy: how prices are pooled ([0005](../decisions/0005-pooled-price-data.md)).
+- Household name and members (initials, "You"), each with a diet summary ("Vegetarian", "Allergic to nuts" in Beet). Tap → **Diets and allergies**: diet chips (Vegetarian, Vegan, Pescatarian, No pork, Halal, Low salt) and allergy chips (Nuts, Peanuts, Gluten, Lactose, Eggs, Fish, Shellfish, Soy, Sesame, Celery, Mustard, Other); selected allergies are Beet. Footnote: Merinde checks recipes against the list in code; still read labels.
+- Invite: the 6-character code and a `ShareLink`.
+- **You:** Expiry reminders ("Day before, 18:00"), Language ("Follows your iPhone (English)", opens the app's page in Settings), How prices are shared ([0005](../decisions/0005-pooled-price-data.md)).
 - Sign out.
 
 ## First run
 
-1. **Welcome:** a cooking video across the top half, fading into `Paper`; horizontal logo lockup ([brand.md](brand.md)) and the "food packed for the road" line; three one-line features; Sign in with Apple (`SignInWithAppleButton`, black in light mode, white in dark), Continue with email. Video spec below.
+1. **Welcome:** a cooking video across the top half, fading into `Paper`; horizontal logo lockup ([brand.md](brand.md)) and the "food packed for the road" line; three one-line features; Sign in with Apple (`SignInWithAppleButton`, black in light mode, white in dark), Continue with email, and **Try the demo household** ([#42](https://github.com/traista-eugen/merinde/issues/42)). Video spec below.
 2. **Household:** Create one (name it) or Join with a code. An invite link opens this step with the code filled in.
-3. **Plan tab**, with empty states pointing to Add food and New recipe.
+3. **Plan tab**, with the setup card and empty states pointing to Update pantry and New recipe.
+
+**Demo household:** opens a ready-made household (pantry with expiring items, recipes with variants, a 3-day plan, a list, receipts from three shops, waste stats). A Saffron **DEMO** badge takes the household button's place on every tab; tapping it opens a sheet: "You're in the demo household", Keep exploring, Reset demo, Leave demo. Demo data never mixes with real households or pooled prices.
 
 ### Welcome video
 
