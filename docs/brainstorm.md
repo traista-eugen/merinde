@@ -42,6 +42,7 @@ flowchart LR
 - `new` Cooking mode: step by step, timers, screen stays on.
 - `new` Import a recipe from a link or a cookbook photo.
 - `new` Animate the logo's steam as the "writing your recipe" indicator instead of a spinner.
+- `new` A generated photo for each recipe (Muse Image, $0.01 each; see [ai-models.md](ai-models.md)).
 
 ### Pantry (stock)
 
@@ -52,7 +53,7 @@ flowchart LR
 - `mvp` Rough mode for staples (have / low / out) instead of exact amounts for salt, oil, spices.
 - `mvp` Food waste stats: what was thrown away and what it cost.
 - `mvp` Expiry reminders: a push notification before food goes off.
-- `new` Fridge photo quick-add: photograph a shelf and the AI lists the items.
+- `new` Fridge photo quick-add: photograph a shelf, or sweep the camera, and the AI lists the items. Photos, not video, for now ([ai-models.md](ai-models.md#stock-scan-photos-not-video-for-now)).
 - `new` Leftovers: cooked extras go back into the pantry with a short expiry.
 
 ### Meal planning
@@ -109,6 +110,7 @@ flowchart LR
 ## Open questions
 
 - How well does Open Food Facts cover products sold in Romania? Check early with a few real barcodes.
+- Voice input in Romanian: Muse Voice Transcribe doesn't support it. Does Apple's on-device speech recognition handle Romanian well enough, or should we send audio to Muse Spark 1.2?
 
 ## Decided
 
