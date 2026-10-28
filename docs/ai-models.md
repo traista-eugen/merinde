@@ -108,10 +108,33 @@ All calls go through Supabase edge functions with `response_format: json_schema`
 - **Data:** Standard-mode content isn't used to train Meta models (Data Commitments). Retention is "as described in the Terms"; zero data retention is available for qualified accounts through Meta sales.
 - **Availability:** Romania isn't restricted (Geographic Use Policy, 12 Oct 2026). Muse Image is blocked only in India.
 
+## Gateway
+
+Every AI edge function calls `callAi(task, { locale, input, householdId })` from `supabase/functions/_shared/ai/mod.ts` (#23).
+
+| Rule | How |
+|------|-----|
+| Endpoint | `POST https://api.meta.ai/v1/chat/completions`, key from the `META_API_KEY` secret |
+| Model | Allowlist: `muse-spark-1.3` for text and images, `muse-spark-1.2` only when the input has audio. Any other `task.model` is a `config` error |
+| No `-contributor` | Any model ID containing `contributor` throws `model_refused` before a request is sent |
+| Input | Text, images (https URL or base64 JPEG/PNG/WebP/GIF, ≤ 50) and audio (base64 WAV/MP3) |
+| Language | `locale` (`ro`, `en-GB`, `ro_RO`…) adds "write text values in Romanian (ro)" after the task's fixed system prompt |
+| Output | `response_format: json_schema` with `strict: true`; the reply is re-validated against the same schema |
+| Retry | Invalid JSON, schema mismatch, an empty reply or a refusal → one identical retry, then `invalid_output`. A reply cut off at `max_tokens` fails at once (raise the task's `maxTokens`). HTTP errors and timeouts (120 s for all attempts) aren't retried |
+| Usage | One `ai_usage` row per API call, retries included: `household_id`, `function`, `model`, `prompt_tokens`, `completion_tokens` (`null` when the response has no count). The sink is injectable; the default inserts through PostgREST with the project's secret key. The answer waits at most 5 s for it; a slow or failed insert is logged, never thrown |
+| Errors | `errorResponse(err)` maps codes to 400 / 500 / 502 / 504; only `bad_request` messages reach the app |
+
+- **Schemas:** a subset of JSON Schema (`type`, `properties`, `required`, `additionalProperties`, `items`, `enum`, `const`, `anyOf`, min/max for numbers, strings and arrays, `pattern`, `format: date | date-time`). Strict mode: root is an object, every object has `additionalProperties: false` and lists every property in `required`; optional fields use `type: ["string", "null"]`. Anything else is refused before sending.
+- **Key:** `supabase secrets set META_API_KEY=<key>`; locally, copy `supabase/functions/.env.example` to `.env`.
+- **`ai-ping`:** one minimal call (`reasoning_effort: minimal`) to check the key end to end. Needs a secret key, since each call spends credit. Secret keys aren't JWTs, so deploy with `supabase functions deploy ai-ping --no-verify-jwt` (`[functions.ai-ping] verify_jwt = false` goes in `config.toml` once #21 merges); the handler checks the key itself:
+  `curl -X POST https://<ref>.supabase.co/functions/v1/ai-ping -H "apikey: <sb_secret_…>" -d '{"locale":"ro"}'` (or `-H "Authorization: Bearer <service_role key>"`). Returns the greeting, model and token counts, and writes an `ai_usage` row.
+- **Tests:** `npx deno test supabase/functions`. No permissions are granted, so a test can't reach the network.
+
 ## Unverified
 
 - **$150 credit:** the amount and expiry aren't on the official hackathon page (third-party reports only). Partner credits for Baseten, Modal and Fireworks weren't found either.
 - **Costs:** all per-call token counts and costs are estimates. Check them against `usage` once we have a key.
+- **Gateway against the real API:** tested only with a mocked `fetch`. With a key, check that `ai-ping` works, that `completion_tokens` includes reasoning tokens, and whether strict mode accepts `minimum`, `pattern` and `format` (the gateway checks them either way).
 - **Romanian quality:** receipt reading (diacritics, discount and VAT lines) and Spark 1.2 audio in Romanian are untested.
 - **On-device speech:** Apple's on-device speech recognition for Romanian: check on a device.
 - **Data handling:** how long Meta keeps Standard-mode content, where it's processed, and whether a DPA exists aren't published in what I found. Check before opening to other households (GDPR).
