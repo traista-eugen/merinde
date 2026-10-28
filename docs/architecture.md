@@ -49,11 +49,11 @@ flowchart LR
 
 ## AI functions
 
-Each is an edge function that calls Muse Spark and returns JSON validated against a schema.
+Each is an edge function that calls Muse Spark and returns JSON validated against a schema. Every function also takes the app's `locale` and answers in that language ([0006](decisions/0006-app-languages.md)).
 
 | Function | Input | Output |
 |----------|-------|--------|
-| `recipe-generate` | prompt, pantry, members' diets and allergies | new recipe |
+| `recipe-generate` | prompt, pantry, members' diets and allergies | new recipe, with a cover colour 1–6 ([design](design/design-system.md#recipe-covers)) |
 | `recipe-edit` | current version, change request | next version of the same variant |
 | `recipe-variant` | recipe, missing items or wanted change | new variant |
 | `pantry-parse` | free text (typed or transcribed) | items with quantity, unit, estimated expiry |

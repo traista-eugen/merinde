@@ -41,6 +41,7 @@ flowchart LR
 - `mvp` Save favourites.
 - `new` Cooking mode: step by step, timers, screen stays on.
 - `new` Import a recipe from a link or a cookbook photo.
+- `new` Animate the logo's steam as the "writing your recipe" indicator instead of a spinner.
 
 ### Pantry (stock)
 
@@ -107,7 +108,6 @@ flowchart LR
 
 ## Open questions
 
-- App language: English (for the judges), Romanian (for the family), or both? Recipes could follow the user's language either way.
 - How well does Open Food Facts cover products sold in Romania? Check early with a few real barcodes.
 
 ## Decided
@@ -121,3 +121,5 @@ flowchart LR
 - Prices pooled anonymously across all households ([0005](decisions/0005-pooled-price-data.md)).
 - Meal planning covers the next n days, chosen by the user.
 - Hackathon: indie track.
+- App in English and Romanian, following the phone; AI output in the same language ([0006](decisions/0006-app-languages.md)).
+- Navigation: five tabs, Plan first, no scan tab ([0007](decisions/0007-navigation.md), [design](design/README.md)).
