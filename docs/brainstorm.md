@@ -37,6 +37,7 @@ flowchart LR
 - `mvp` Version history per variant: see what changed, undo a change.
 - `mvp` Recipes prefer pantry ingredients, flag anything missing, and offer a variant that avoids it.
 - `new` Scale servings; save favourites.
+- `new` Animate the logo's steam as the "writing your recipe" indicator instead of a spinner.
 
 ### Pantry (stock)
 

@@ -83,7 +83,7 @@ Solid arrows push; dotted arrows open a sheet; cameras open full screen.
 
 ## First run
 
-1. **Welcome:** a cooking video across the top half, fading into `Paper`; wordmark and the "food packed for the road" line; three one-line features; Sign in with Apple (`SignInWithAppleButton`, black in light mode, white in dark), Continue with email. Video spec below.
+1. **Welcome:** a cooking video across the top half, fading into `Paper`; horizontal logo lockup ([brand.md](brand.md)) and the "food packed for the road" line; three one-line features; Sign in with Apple (`SignInWithAppleButton`, black in light mode, white in dark), Continue with email. Video spec below.
 2. **Household:** Create one (name it) or Join with a code. An invite link opens this step with the code filled in.
 3. **Plan tab**, with empty states pointing to Add food and New recipe.
 

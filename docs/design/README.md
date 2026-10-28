@@ -6,6 +6,7 @@ UI and UX for the Merinde iOS app. Tracked in [#27](https://github.com/traista-e
 
 ## Direction
 
+- **Logo:** Steam m, a paprika bowl whose steam draws an m ([brand.md](brand.md)).
 - **Warm cookbook:** cream paper, deep paprika accent, New York serif titles over SF Pro.
 - **Recipe covers:** every recipe has a cover colour, shown as a tile in lists and a full-colour header on the recipe page.
 - **Standard iOS components** everywhere else; Liquid Glass comes free on iOS 26.
@@ -20,6 +21,7 @@ UI and UX for the Merinde iOS app. Tracked in [#27](https://github.com/traista-e
 | [recipes.md](recipes.md) | Recipe list, new recipe, recipe page, change bar, history | Approved 28 Oct |
 | [pantry-plan-list.md](pantry-plan-list.md) | Pantry, add food, plan, shopping list | Not yet written |
 | [scanning-spending.md](scanning-spending.md) | Receipt review, barcode, expiry label, spending, price history | Not yet written |
+| [brand.md](brand.md) | Logo (Steam m), app icon layers, lockups; SVGs in [brand/](brand/) | Approved 28 Oct |
 | [design-system.md](design-system.md) | Colour, type, spacing, components, AI states, language, accessibility | Approved 28 Oct |
 
 ## Build order
