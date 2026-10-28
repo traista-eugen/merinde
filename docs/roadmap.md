@@ -12,7 +12,7 @@ Each milestone here has a matching GitHub milestone. Issues are the source of tr
 - [ ] Backend: schema, auth, households and invites working ([#21](https://github.com/traista-eugen/merinde/issues/21), [#1](https://github.com/traista-eugen/merinde/issues/1), [#2](https://github.com/traista-eugen/merinde/issues/2))
 - [ ] iOS skeleton: sign in, create or join a household ([#22](https://github.com/traista-eugen/merinde/issues/22))
 - [ ] AI gateway edge function calls Muse Spark and returns validated JSON ([#23](https://github.com/traista-eugen/merinde/issues/23))
-- [ ] Open Food Facts coverage checked for Romanian products ([#24](https://github.com/traista-eugen/merinde/issues/24))
+- [x] Open Food Facts coverage checked for Romanian products ([#24](https://github.com/traista-eugen/merinde/issues/24))
 - [ ] Apple Developer Program enrollment ($99/year) for TestFlight; approval can take a day or two ([#25](https://github.com/traista-eugen/merinde/issues/25))
 
 ## M1: MVP, hackathon submission (30 Oct – 4 Nov)

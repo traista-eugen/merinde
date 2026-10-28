@@ -124,4 +124,4 @@ flowchart LR
 - Hackathon: indie track.
 - App in English and Romanian, following the phone; AI output in the same language ([0006](decisions/0006-app-languages.md)).
 - Navigation: five tabs, Plan first, no scan tab ([0007](decisions/0007-navigation.md), [design](design/README.md)).
-- Open Food Facts is the first barcode lookup: it found 23 of 25 Romanian products (92%) but only 12 had complete nutrition, so gaps fall back to a nutrition-label photo read by Muse Spark ([#24 results](https://github.com/traista-eugen/merinde/issues/24#issuecomment-6478192420)).
+- Open Food Facts is the first barcode lookup: it knew 23 of 25 products from Romanian shops (92%). If one is missing or lacks kcal, fat, carbs or protein (7 of 25), the app reads a nutrition-label photo with Muse Spark ([#24 results](https://github.com/traista-eugen/merinde/issues/24#issuecomment-6478192420)).
