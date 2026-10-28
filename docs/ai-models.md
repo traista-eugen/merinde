@@ -6,7 +6,7 @@ _Checked 2026-10-28 against Meta's docs. Pay-as-you-go prices in USD, Standard m
 
 | Model | Used for | Why | Cost per call (est.) |
 |-------|----------|-----|----------------------|
-| `muse-spark-1.3` | Recipes (generate, edit, variant), pantry parsing, meal plans, receipts, expiry labels, nutrition gaps, allergen labels | One model reads text, photos and PDFs and returns schema-checked JSON. Meta's recommended version, same price as 1.2 | $0.004–0.05 |
+| `muse-spark-1.3` | Recipes (generate, edit, variant), pantry parsing, meal plans, receipts, expiry labels, nutrition gaps, allergen labels, stock scan photos | One model reads text, photos and PDFs and returns schema-checked JSON. Meta's recommended version, same price as 1.2 | $0.004–0.05 |
 | `muse-image-1.0` | Recipe photos (optional, `new` in brainstorm) | Flat $0.01 per image, generates and edits | $0.01 |
 | On-device (Apple) | Barcode scanning, speech-to-text | No Meta model runs on an iPhone, and Muse Voice Transcribe doesn't support Romanian | $0 |
 
@@ -47,9 +47,34 @@ All calls go through Supabase edge functions with `response_format: json_schema`
 | `meal-plan`, 1 day / 7 days | Spark 1.3, medium | 5,000 / 4,000; 7,000 / 10,000 | $0.023 / $0.05 | Pantry sorted by expiry; returns meals and missing items |
 | `receipt-parse` | Spark 1.3 + photo, low–medium | 6,000 / 3,000 | $0.02 | Shop, date, lines, discounts; schema has no field for card or loyalty numbers |
 | `label-read` | Spark 1.3 + photo, low | 2,000 / 400 | $0.004 | Could try Apple Vision OCR first and call AI only when that fails |
+| Stock scan (optional) | Spark 1.3 + 1–5 photos, low | 7,000 / 3,000 | $0.02 | See [Stock scan](#stock-scan-photos-not-video-for-now) |
 | Nutrition per recipe | Open Food Facts first; Spark 1.3 for gaps, low | 2,000 / 1,200 | $0.008 | Save estimates on `product.nutrition` so each product is estimated once |
 | Allergy check | Code first, plus Spark inside recipe calls | — | $0 extra | Model labels allergens per ingredient; code re-checks against product allergen tags and the 14 EU allergens. Never trust the model alone |
 | Recipe photo (optional) | Muse Image, `reasoning_strength: low` | — | $0.01 | Generate once per recipe, store in Supabase Storage |
+
+## Stock scan: photos, not video (for now)
+
+`new` in [brainstorm](brainstorm.md). How it would work:
+
+1. **Capture:** the user takes 1–5 photos of a shelf or the fridge. Or they sweep the camera while the app grabs a sharp still about once a second, using an on-device blur check. Convert HEIC to JPEG, ~1,600 px.
+2. **One AI call:** Spark 1.3 gets all the photos, the current pantry and candidate products.
+   - For each item it returns a name, count or rough quantity, unit, confidence, and a box per photo (0–1000 grid).
+   - It merges duplicates across photos.
+3. **Reuse:** the output has the same shape as `pantry-parse`, so matching and expiry estimates are reused.
+4. **Review:** the app draws the boxes on the photos; the user fixes and confirms.
+   - The scan only adds items, because it can't see hidden items, drawer contents, fill levels or expiry dates.
+
+| | Photos (chosen) | Video |
+|---|---|---|
+| Input | JPEG, PNG or WebP, sent inline | MP4 only (export the iPhone's HEVC `.mov` to H.264 MP4); inline ≤ 50 MB or Files API |
+| Label reading | Sharp | Motion blur |
+| Review boxes | One set per photo | Per frame, so the review UI is harder |
+| Duplicates | Model merges them across a few photos | Same item in many frames; counting untested |
+| Cost | ~$0.02 per scan | Unknown: frame rate, max length and tokens per second aren't published |
+| Narration | — | Spark reads the audio track, but audio is degraded on 1.3 and Romanian is untested |
+
+- **SAM 3.1 video tracking** keeps each object's identity across frames, so counts would be reliable. But it needs one request per item type, at $0.20 per 1,000 frames (at least 50 billed). That's ~$0.06 per item type for 10 s at 30 fps, or ~$1 per fridge. Not worth it.
+- **Revisit video** after measuring real token counts with `POST /v1/responses/input_tokens`.
 
 ## Not used, and why
 
@@ -57,7 +82,7 @@ All calls go through Supabase edge functions with `response_format: json_schema`
 |-------|---------|
 | Muse Wonder | 3–5× Spark's price; built for long agent and coding runs, not short structured calls |
 | Muse Voice Transcribe | Its 25 languages don't include Romanian. Keep on-device speech-to-text. Muse Spark 1.2 takes audio directly, but its Romanian quality is untested |
-| SAM 3.1 | Returns masks for a named object; it can't tell what's in a fridge. Spark already lists items with boxes. Maybe later, to outline items in a fridge photo (≈ $0.0025 per item) |
+| SAM 3.1 | Returns masks for a named object; it can't tell what's in a fridge. Spark already lists items with boxes. Video tracking would count reliably but costs ~$1 per fridge scan |
 | Muse Glimmer, Muse Spark Open | Too big for a phone; self-hosting or a second provider adds work with no gain while API credits last |
 | Muse Code | Coding agent for building the app, not part of the app |
 
@@ -90,10 +115,11 @@ All calls go through Supabase edge functions with `response_format: json_schema`
 - **On-device speech:** Apple's on-device speech recognition for Romanian: check on a device.
 - **Data handling:** how long Meta keeps Standard-mode content, where it's processed, and whether a DPA exists aren't published in what I found. Check before opening to other households (GDPR).
 - **Token savings:** "1.3 uses ~25% fewer tokens than 1.2" is Meta's own claim, reported by the press.
+- **Video input:** frame sampling, max length and tokens per second aren't documented, nor which codecs inside MP4 work (H.264 assumed). Stock scan quality is untested.
 
 ## Sources
 
-- Meta docs: [models](https://dev.meta.ai/docs/models), [pricing and rate limits](https://dev.meta.ai/docs/pricing-rate-limits), [image understanding](https://dev.meta.ai/docs/image-understanding), [structured output](https://dev.meta.ai/docs/structured-output), [reasoning](https://dev.meta.ai/docs/reasoning), [video and audio](https://dev.meta.ai/docs/video-understanding), [speech to text](https://dev.meta.ai/docs/speech-to-text), [image generation](https://dev.meta.ai/docs/image-generation), [segmentation](https://dev.meta.ai/docs/media-segmentation), [file handling](https://dev.meta.ai/docs/file-handling)
+- Meta docs: [models](https://dev.meta.ai/docs/models), [pricing and rate limits](https://dev.meta.ai/docs/pricing-rate-limits), [image understanding](https://dev.meta.ai/docs/image-understanding), [structured output](https://dev.meta.ai/docs/structured-output), [reasoning](https://dev.meta.ai/docs/reasoning), [video and audio](https://dev.meta.ai/docs/video-understanding), [speech to text](https://dev.meta.ai/docs/speech-to-text), [image generation](https://dev.meta.ai/docs/image-generation), [segmentation](https://dev.meta.ai/docs/media-segmentation) ([SAM 3.1](https://dev.meta.ai/docs/sam/overview)), [file handling](https://dev.meta.ai/docs/file-handling)
 - Open weights: [Muse Glimmer](https://dev.meta.ai/docs/muse-glimmer) ([deploy](https://dev.meta.ai/docs/muse-glimmer/deploy)), [Muse Spark Open](https://dev.meta.ai/docs/muse-spark-open) ([deploy](https://dev.meta.ai/docs/muse-spark-open/deploy))
 - Terms: [Geographic Use Policy](https://dev.meta.ai/legal/geographic-use-policy), [Data Commitments](https://dev.meta.ai/legal/commitments), [zero data retention](https://dev.meta.ai/help/policies-and-privacy/zero-data-retention)
 - [Hackathon page](https://dev.meta.ai/events/global-hackathon); $150 credit: [CourseJoiner](https://coursejoiner.com/hackathon/meta-global-hackathon-2026-1/) (third party)

@@ -67,7 +67,7 @@ flowchart LR
 - `mvp` Receipt: extract the shop, date, items, quantities and prices. Items go into the pantry; prices go into expenses and price history.
 - `mvp` Barcode: product name and nutrition (e.g. from Open Food Facts).
 - `mvp` Expiry date from a photo of the label.
-- `new` Photograph the fridge or a shelf to add several items at once (Muse Spark lists them; SAM 3.1 could outline each one).
+- `new` Stock scan: photograph the fridge or a shelf, or sweep the camera, to add several items at once. Photos, not video, for now ([ai-models.md](ai-models.md#stock-scan-photos-not-video-for-now)).
 
 ### Expenses and prices
 
