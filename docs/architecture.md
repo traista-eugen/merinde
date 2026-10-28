@@ -11,7 +11,7 @@ _Draft, 2026-10-28._
 | Backend | Supabase (EU, Frankfurt): Postgres, Auth, Realtime, Storage, Edge Functions | decided ([0004](decisions/0004-backend.md)) |
 | AI | Meta Model API, `muse-spark-1.3` for text and images (`muse-spark-1.2` only for audio), called only from the backend; details in [ai-models.md](ai-models.md) | decided ([0003](decisions/0003-meta-muse-models.md)) |
 | Barcode scanning | On device: Apple VisionKit, Google ML Kit | proposed |
-| Product and nutrition data | Open Food Facts API | proposed |
+| Product and nutrition data | Open Food Facts API | decided ([#24](https://github.com/traista-eugen/merinde/issues/24)) |
 | Voice input | On-device speech-to-text, then the same text parser as typed input | proposed |
 | Push notifications | Apple Push Notification service, sent by a scheduled edge function | proposed |
 
