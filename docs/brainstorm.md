@@ -26,8 +26,9 @@ flowchart LR
 
 - `mvp` Sign up, create a household, invite family members with a link or code.
 - `mvp` Pantry, meal plan, shopping list and expenses belong to the household and update live for everyone.
-- `new` Per-member dietary needs and allergies that every recipe respects.
-- `new` See who ticked what on the shopping list.
+- `mvp` Per-member dietary needs and allergies that every recipe and plan respects.
+- `new` Delete your account and data (Apple requires it for apps with sign-up; GDPR expects it).
+- `new` AI usage limits per household, to protect credits once other households join.
 
 ### Recipes
 
@@ -36,7 +37,10 @@ flowchart LR
 - `mvp` Variants: when an ingredient is missing or you want a change, create a variant ("no eggs", "chicken instead of tofu") next to the original and switch between them.
 - `mvp` Version history per variant: see what changed, undo a change.
 - `mvp` Recipes prefer pantry ingredients, flag anything missing, and offer a variant that avoids it.
-- `new` Scale servings; save favourites.
+- `mvp` Scale servings.
+- `mvp` Save favourites.
+- `new` Cooking mode: step by step, timers, screen stays on.
+- `new` Import a recipe from a link or a cookbook photo.
 - `new` Animate the logo's steam as the "writing your recipe" indicator instead of a spinner.
 
 ### Pantry (stock)
@@ -44,29 +48,35 @@ flowchart LR
 - `mvp` Quick add by typing or speaking a list ("6 eggs, half a bag of rice, spinach"); the LLM turns it into items.
 - `mvp` Quantity and expiry date per item; expiry estimated from the product type when unknown.
 - `mvp` Cooking a recipe subtracts its ingredients from stock.
-- `new` Quick corrections ("out of milk") so stock stays trustworthy.
-- `new` Rough mode for staples (have / low / out) instead of exact amounts for salt, oil, spices.
+- `mvp` Quick corrections ("out of milk", "threw away the yoghurt"), recording whether food was used or thrown away.
+- `mvp` Rough mode for staples (have / low / out) instead of exact amounts for salt, oil, spices.
+- `mvp` Food waste stats: what was thrown away and what it cost.
+- `mvp` Expiry reminders: a push notification before food goes off.
+- `new` Fridge photo quick-add: photograph a shelf and the AI lists the items.
+- `new` Leftovers: cooked extras go back into the pantry with a short expiry.
 
 ### Meal planning
 
-- `mvp` Plan tomorrow's meals, using items that expire soonest first.
+- `mvp` Plan meals and groceries for the next n days (you choose n), using items that expire soonest first.
 - `mvp` Turn the plan into a shopping list for whatever is missing.
-- `new` Plan a whole week.
 
 ### Shopping list
 
 - `mvp` Generated from the meal plan minus the pantry; items can also be added by hand.
 - `mvp` Shared and live: tick items off in the store, big tap targets, one-handed.
 - `mvp` Ticking an item adds it to the pantry, so restocking needs no extra input.
+- `mvp` See who ticked what.
 - `mvp` Suggest the cheapest shop for the current list, based on price history.
-- `new` Split suggestion: "buy these at shop A and those at shop B" when that's cheaper overall.
-- `new` Works offline (poor signal in stores).
+- `mvp` Split suggestion: "buy these at shop A and those at shop B" when that's cheaper overall.
+- `mvp` Works offline (poor signal in stores).
+- `new` Grouped by aisle (dairy, vegetables, bakery).
 
 ### Scanning
 
 - `mvp` Receipt: extract the shop, date, items, quantities and prices. Items go into the pantry; prices go into expenses and price history.
 - `mvp` Barcode: product name and nutrition (e.g. from Open Food Facts).
 - `mvp` Expiry date from a photo of the label.
+- `mvp` Receipt discounts and loyalty-card prices (Kaufland Card, Lidl Plus) taken into account.
 
 ### Expenses and prices
 
@@ -74,11 +84,17 @@ flowchart LR
 - `mvp` Price history per product and shop, to spot price increases.
 - `mvp` Compare the same product across shops.
 - `mvp` Pool anonymous price data across all households, so comparisons work even for shops you haven't visited ([0005](decisions/0005-pooled-price-data.md)).
+- `mvp` Unit prices per kg or litre, so different pack sizes compare fairly.
+- `new` Monthly grocery budget with alerts.
 
 ### Nutrition
 
 - `mvp` Nutrition per product from barcode data.
-- `new` Nutrition per recipe and per day, calculated from ingredients.
+- `mvp` Nutrition per recipe and per day, calculated from ingredients.
+
+### Hackathon
+
+- `mvp` Demo household with sample data, so the demo and the judges see a full app straight away.
 
 ## Hard parts to solve early
 
@@ -86,8 +102,9 @@ flowchart LR
 - **Comparing shops:** different shops print the same product differently on receipts, so price comparison only works if matching is good.
 - **Stock drift:** people won't log everything, so quantities slowly go wrong. Corrections have to be effortless.
 - **Expiry dates:** standard barcodes don't contain them, so they come from a photo of the label or an estimate.
+- **Allergies:** a safety issue, so AI output must be checked against allergy lists in code, not only in the prompt.
 - **Receipt formats** differ by store and country.
-- **Deadline:** the full loop, households and scanning on two native apps by 4 Nov.
+- **Deadline:** 34 user stories on a native iOS app by 4 Nov.
 
 ## Open questions
 
@@ -102,6 +119,7 @@ flowchart LR
 - Supabase backend, hosted in the EU ([0004](decisions/0004-backend.md)).
 - Romania first (RON), then Europe (EUR).
 - Prices pooled anonymously across all households ([0005](decisions/0005-pooled-price-data.md)).
+- Meal planning covers the next n days, chosen by the user.
 - Hackathon: indie track.
 - App in English and Romanian, following the phone; AI output in the same language ([0006](decisions/0006-app-languages.md)).
 - Navigation: five tabs, Plan first, no scan tab ([0007](decisions/0007-navigation.md), [design](design/README.md)).
