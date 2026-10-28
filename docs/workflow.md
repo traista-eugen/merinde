@@ -46,6 +46,20 @@ scripts/status.sh local/backend success "migrations and 42 tests passed"
 
 It posts to the checked-out commit, which must already be pushed.
 
+**Backend:** every PR that touches `supabase/` runs this on the Windows PC after pushing:
+
+```bash
+scripts/check-backend.sh --post
+```
+
+- Starts the local Supabase stack if it isn't running (`npx supabase start`, needs Docker Desktop).
+- `npx supabase db reset`: applies every migration to a fresh database.
+- `npx supabase test db`: the pgTAP tests in `supabase/tests/`.
+- `npx deno test supabase/functions`, if any `*_test.ts` files exist there.
+- `--post` sets `local/backend` to `pending`, then `success` or `failure` with a short summary. It refuses uncommitted or unpushed work. Without `--post` it only prints the result.
+- All worktrees share one stack (project `merinde`), so runs take turns through a lock at `/tmp/merinde-backend-check.lock`. A second run waits up to 20 minutes. A lock older than 30 minutes is treated as stale.
+- `db reset` wipes local data, so don't keep anything you need in the local database.
+
 ### Keeping parallel branches apart
 
 - **Xcode:** use folder-synced groups (Xcode 16) so adding files doesn't edit `project.pbxproj`.

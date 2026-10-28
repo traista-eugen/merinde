@@ -65,11 +65,13 @@ Each is an edge function that calls Muse Spark and returns JSON validated agains
 
 ## Data model
 
+Migrations live in `supabase/migrations/`; the tests that prove the access rules are in `supabase/tests/`.
+
 **Shared by everyone:**
 
 | Entity | Key fields |
 |--------|------------|
-| `product` | canonical name, category, default unit, barcode, nutrition |
+| `product` | canonical name, category, default unit, barcode, nutrition, allergen tags |
 | `shop` | chain, branch, country, currency |
 | `product_alias` | shop chain + raw receipt text → product |
 | `price_observation` | product, shop, price paid and regular price, loyalty card needed, price per kg / litre / piece, currency, date (no household link) |
@@ -78,15 +80,34 @@ Each is an edge function that calls Muse Spark and returns JSON validated agains
 
 | Entity | Key fields |
 |--------|------------|
-| `household`, `member`, `invite` | who belongs to which household; invite code; each member's diets and allergies; demo flag (demo households never feed pooled prices) |
-| `pantry_item` | product, quantity and unit (or rough level: have / low / out), expires_on |
-| `pantry_event` | item, change, reason (bought, cooked, used, thrown away), member, time; feeds waste stats |
-| `recipe` → `recipe_variant` → `recipe_version` | variant name ("Original", "No eggs"), favourite flag; version content (ingredients, steps) and change note |
+| `household`, `member`, `invite` | who belongs to which household (owner or member); 8-character invite code, valid 7 days; each member's diets and allergies; demo flag (demo households never feed pooled prices) |
+| `pantry_item` | product, quantity and unit (or rough level: have / low / out), expires_on, whether the expiry is estimated |
+| `pantry_event` | item, product, change, reason (bought, cooked, used, thrown away, corrected), member, time; feeds waste stats |
+| `recipe` → `recipe_variant` → `recipe_version` | recipe title, cover colour, favourite flag; variant name ("Original", "No eggs"); version content (servings, ingredients, steps) and change note |
 | `meal_plan_entry` | date, meal, recipe variant, servings |
-| `shopping_list_item` | product, quantity, checked, checked_by |
-| `receipt` → `receipt_line` | shop, date, total, photo; line: raw text, product, quantity, unit price, discount |
+| `shopping_list_item` | name, product (once matched), quantity, checked, checked_by |
+| `receipt` → `receipt_line` | shop, date, total, currency, photo; line: raw text, product, quantity, unit, unit price, discount, loyalty-card discount |
+| `ai_usage` | function, model, prompt and completion tokens per AI call; household when known |
+
+- **Units:** `g`, `kg`, `ml`, `l`, `pc`. Money columns sit next to a currency code.
+- **Receipt photos:** private Storage bucket `receipts`, one folder per household (`<household_id>/<file>`).
+- **Live updates:** Realtime publishes `pantry_item` and `shopping_list_item`.
 
 **Price comparison** is a query over `price_observation`: the latest unit price per product per shop, in the same currency, summed over the current shopping list. Money is always stored with its currency (RON first, EUR later).
+
+### Access rules (enforced in Postgres)
+
+| Who | Can |
+|-----|-----|
+| Anon | Nothing |
+| Signed-in user | Read the shared catalogue; read and write their own household's rows. Each history row (`pantry_event`, `recipe_version`) can be added and deleted but not edited |
+| Household owner | Also rename the household, create and revoke invites |
+| Backend (service role) | Everything, except adding prices directly |
+
+- **Households:** created and joined only through RPCs. `create_household(name)` makes the caller the owner; `create_invite()` (owner only) returns a code; `join_household(code)` joins with it. A user belongs to one household (unique `member.user_id`). Errors: `23505` already in a household, `P0002` invalid or expired code, `42501` not allowed.
+- **No cross-household links:** every household table has `household_id`, and links between them are composite foreign keys on `(id, household_id)`.
+- **Pooled prices:** only the backend's `record_price_observations(receipt_id, prices)` adds them. It copies the receipt's shop, date and the shop's currency, keeps no link back, and adds nothing for a demo household. The app never writes prices.
+- **Catalogue writes** (new products, aliases from corrections) go through the backend.
 
 ## Ingredient matching
 
