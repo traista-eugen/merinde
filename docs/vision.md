@@ -15,13 +15,13 @@ _Updated 2026-10-28. Items marked (proposed) need confirming._
 ## Problem
 
 - Generating recipes in a general chatbot works, but refining one is painful: every change ("less salt", "no eggs") makes the conversation longer, and the current version of the recipe gets lost in the scroll.
-- Planning tomorrow's meals, checking what's at home and writing a shopping list are separate chores, split across family members, apps and memory.
+- Planning the next few days of meals, checking what's at home and writing a shopping list are separate chores, split across family members, apps and memory.
 - Food goes bad because nobody tracks what expires when.
 - Grocery spending is hard to follow, price increases go unnoticed, and it's unclear which shop is cheapest for what you buy.
 
 ## Target users
 
-- **Primary:** households that cook at home and plan meals a day ahead: several people sharing one pantry, one shopping list and one budget.
+- **Primary:** households that cook at home and plan meals a few days ahead: several people sharing one pantry, one shopping list and one budget.
 - **First users:** our own family.
 - Anyone can sign up and create or join a household.
 
@@ -29,7 +29,7 @@ _Updated 2026-10-28. Items marked (proposed) need confirming._
 
 - **One recipe, one place:** ask for a change and the recipe updates in place, with history. Missing an ingredient or fancy something different? Make a variant instead of starting over.
 - **Knows your kitchen:** plans and recipes use what you already have, starting with what expires first.
-- **Shared by the household:** everyone sees the same pantry, plan and shopping list, live.
+- **Shared by the household:** everyone sees the same pantry, plan and shopping list, live, and every recipe respects each member's diets and allergies.
 - **Almost no typing:** scan receipts, barcodes and expiry labels; type or say a quick list.
 - **Spend less:** receipts track spending and prices per shop. Prices are pooled anonymously across all households, so the app can suggest where your list is cheapest, even at shops you haven't visited.
 

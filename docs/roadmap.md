@@ -21,12 +21,12 @@ Everything marked `mvp` in [brainstorm.md](brainstorm.md) is in scope. The order
 
 | Day | Build |
 |-----|-------|
-| 30 Oct | Recipes: generate, refine in place, variants, version history |
-| 31 Oct | Pantry: quick add by text or voice, expiry estimates; cooking subtracts stock |
-| 1 Nov | Meal plan for tomorrow (expiring first) → shared shopping list; ticking restocks the pantry |
-| 2 Nov | Receipt scan: shop, items, prices → pantry, expenses, pooled price observations |
-| 3 Nov | Cheapest-shop suggestion from pooled prices; barcode → nutrition; expiry date from label photo |
-| 4 Nov | Polish, demo video, submit before 9:00 PM ET ([#26](https://github.com/traista-eugen/merinde/issues/26)) |
+| 30 Oct | Recipes: generate, refine in place, variants, history, servings, favourites; member diets and allergies |
+| 31 Oct | Pantry: quick add by text or voice, expiry estimates, quick corrections, rough staples, expiry reminders; cooking subtracts stock |
+| 1 Nov | Meal plan for the next n days (expiring first) → shared shopping list: who ticked, offline, ticking restocks the pantry |
+| 2 Nov | Receipt scan: shop, items, prices, discounts → pantry, expenses, pooled price observations with unit prices per kg or litre |
+| 3 Nov | Cheapest shop and split-shop suggestion; barcode → nutrition; nutrition per recipe and day; expiry from label photo; food waste stats |
+| 4 Nov | Demo household ([#42](https://github.com/traista-eugen/merinde/issues/42)), polish, demo video, submit before 9:00 PM ET ([#26](https://github.com/traista-eugen/merinde/issues/26)) |
 
 ## After the hackathon
 

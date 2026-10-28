@@ -13,6 +13,7 @@ _Draft, 2026-10-28._
 | Barcode scanning | On device: Apple VisionKit, Google ML Kit | proposed |
 | Product and nutrition data | Open Food Facts API | proposed |
 | Voice input | On-device speech-to-text, then the same text parser as typed input | proposed |
+| Push notifications | Apple Push Notification service, sent by a scheduled edge function | proposed |
 
 ## Repo layout
 
@@ -48,17 +49,19 @@ flowchart LR
 
 ## AI functions
 
-Each is an edge function that calls Muse Spark and returns JSON validated against a schema.
+Each is an edge function that calls Muse Spark and returns JSON validated against a schema. Every function also takes the app's `locale` and answers in that language ([0006](decisions/0006-app-languages.md)).
 
 | Function | Input | Output |
 |----------|-------|--------|
-| `recipe-generate` | prompt, pantry, household preferences | new recipe |
+| `recipe-generate` | prompt, pantry, members' diets and allergies | new recipe, with a cover colour 1–6 ([design](design/design-system.md#recipe-covers)) |
 | `recipe-edit` | current version, change request | next version of the same variant |
 | `recipe-variant` | recipe, missing items or wanted change | new variant |
 | `pantry-parse` | free text (typed or transcribed) | items with quantity, unit, estimated expiry |
-| `meal-plan` | pantry with expiry dates, preferences | tomorrow's meals and missing items |
+| `meal-plan` | pantry with expiry dates, number of days, diets and allergies | meals for the next n days and missing items |
 | `receipt-parse` | receipt photo | shop, date, lines (name, quantity, price), matched products |
 | `label-read` | label photo | expiry date |
+
+**Allergy check:** before any recipe, variant or plan is saved, code checks its ingredients against the allergies of everyone eating. The prompt alone isn't trusted for safety.
 
 ## Data model
 
@@ -69,18 +72,19 @@ Each is an edge function that calls Muse Spark and returns JSON validated agains
 | `product` | canonical name, category, default unit, barcode, nutrition |
 | `shop` | chain, branch, country, currency |
 | `product_alias` | shop chain + raw receipt text → product |
-| `price_observation` | product, shop, unit price, currency, date (no household link) |
+| `price_observation` | product, shop, price paid and regular price, loyalty card needed, price per kg / litre / piece, currency, date (no household link) |
 
 **Private to a household:**
 
 | Entity | Key fields |
 |--------|------------|
-| `household`, `member`, `invite` | who belongs to which household; invite code |
-| `pantry_item` | product, quantity, unit, expires_on |
-| `recipe` → `recipe_variant` → `recipe_version` | variant name ("Original", "No eggs"); version content (ingredients, steps) and change note |
-| `meal_plan_entry` | date, meal, recipe variant |
+| `household`, `member`, `invite` | who belongs to which household; invite code; each member's diets and allergies; demo flag (demo households never feed pooled prices) |
+| `pantry_item` | product, quantity and unit (or rough level: have / low / out), expires_on |
+| `pantry_event` | item, change, reason (bought, cooked, used, thrown away), member, time; feeds waste stats |
+| `recipe` → `recipe_variant` → `recipe_version` | variant name ("Original", "No eggs"), favourite flag; version content (ingredients, steps) and change note |
+| `meal_plan_entry` | date, meal, recipe variant, servings |
 | `shopping_list_item` | product, quantity, checked, checked_by |
-| `receipt` → `receipt_line` | shop, date, total, photo; line: raw text, product, quantity, unit price |
+| `receipt` → `receipt_line` | shop, date, total, photo; line: raw text, product, quantity, unit price, discount |
 
 **Price comparison** is a query over `price_observation`: the latest unit price per product per shop, in the same currency, summed over the current shopping list. Money is always stored with its currency (RON first, EUR later).
 
