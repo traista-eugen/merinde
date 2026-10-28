@@ -78,6 +78,39 @@ Deno.test("default sink: a failed insert or missing config throws", async () => 
   await assertRejects(() => unconfigured(ROW), Error, "missing");
 });
 
+Deno.test("default sink: a hanging insert is aborted after its timeout", async () => {
+  const mock = mockFetch([({ signal }) =>
+    new Promise<Response>((_, reject) => {
+      signal?.addEventListener(
+        "abort",
+        () => reject(new DOMException("aborted", "AbortError")),
+      );
+    })]);
+  const sink = supabaseUsageSink({
+    fetch: mock.fetch,
+    env: env({
+      SUPABASE_URL: "https://ref.supabase.co",
+      SUPABASE_SERVICE_ROLE_KEY: "eyJx",
+    }),
+    timeoutMs: 10,
+  });
+  await assertRejects(() => sink(ROW), DOMException, "aborted");
+});
+
+Deno.test("default sink: null token counts are sent as null", async () => {
+  const mock = mockFetch([new Response(null, { status: 201 })]);
+  const sink = supabaseUsageSink({
+    fetch: mock.fetch,
+    env: env({
+      SUPABASE_URL: "https://ref.supabase.co",
+      SUPABASE_SERVICE_ROLE_KEY: "eyJx",
+    }),
+  });
+  await sink({ ...ROW, prompt_tokens: null, completion_tokens: null });
+  const body = mock.requests[0].body as AiUsageRow;
+  assertEquals([body.prompt_tokens, body.completion_tokens], [null, null]);
+});
+
 Deno.test("secret keys: the default new key first, then the others, then the legacy key", () => {
   assertEquals(
     secretKeys(env({

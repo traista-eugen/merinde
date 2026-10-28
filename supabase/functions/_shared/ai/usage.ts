@@ -5,21 +5,26 @@ export interface AiUsageRow {
   household_id: string | null;
   function: string;
   model: string;
-  prompt_tokens: number;
-  completion_tokens: number;
+  /** Null when the API response had no count. */
+  prompt_tokens: number | null;
+  completion_tokens: number | null;
 }
 
 export type UsageSink = (row: AiUsageRow) => Promise<void>;
 
+/** The longest a usage insert may hold up an answer. */
+export const USAGE_TIMEOUT_MS = 5_000;
+
 export interface SupabaseSinkOptions {
   fetch?: typeof fetch;
   env?: Env;
+  timeoutMs?: number;
 }
 
 /**
  * The default sink: inserts each row into `ai_usage` through PostgREST with
  * the project's secret key, so it bypasses RLS. Reads the environment on each
- * call, not at creation.
+ * call, not at creation, and aborts the insert after `timeoutMs`.
  */
 export function supabaseUsageSink(
   options: SupabaseSinkOptions = {},
@@ -40,16 +45,26 @@ export function supabaseUsageSink(
     // also needs to be the bearer token.
     if (!key.startsWith("sb_")) headers.Authorization = `Bearer ${key}`;
 
-    const res = await (options.fetch ?? fetch)(`${url}/rest/v1/ai_usage`, {
-      method: "POST",
-      headers,
-      body: JSON.stringify(row),
-    });
-    if (!res.ok) {
-      throw new Error(
-        `ai_usage insert failed: HTTP ${res.status} ${await res.text()}`,
-      );
+    const abort = new AbortController();
+    const timer = setTimeout(
+      () => abort.abort(),
+      options.timeoutMs ?? USAGE_TIMEOUT_MS,
+    );
+    try {
+      const res = await (options.fetch ?? fetch)(`${url}/rest/v1/ai_usage`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(row),
+        signal: abort.signal,
+      });
+      if (!res.ok) {
+        throw new Error(
+          `ai_usage insert failed: HTTP ${res.status} ${await res.text()}`,
+        );
+      }
+      await res.body?.cancel();
+    } finally {
+      clearTimeout(timer);
     }
-    await res.body?.cancel();
   };
 }

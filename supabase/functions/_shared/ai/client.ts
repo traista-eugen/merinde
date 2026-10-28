@@ -1,7 +1,12 @@
 import { AiError } from "./errors.ts";
-import { assertAllowedModel, AUDIO_MODEL, TEXT_MODEL } from "./models.ts";
+import { assertAllowedModel, defaultModel } from "./models.ts";
 import { type JsonSchema, schemaProblems, validate } from "./schema.ts";
-import { type AiUsageRow, supabaseUsageSink, type UsageSink } from "./usage.ts";
+import {
+  type AiUsageRow,
+  supabaseUsageSink,
+  USAGE_TIMEOUT_MS,
+  type UsageSink,
+} from "./usage.ts";
 
 export const META_API_URL = "https://api.meta.ai/v1/chat/completions";
 
@@ -28,11 +33,17 @@ export interface AiTask {
   system: string;
   /** The reply's shape; see schema.ts for the keywords allowed. */
   schema: JsonSchema;
-  /** Defaults to muse-spark-1.3, or muse-spark-1.2 when the input has audio. */
+  /**
+   * Defaults to muse-spark-1.3, or muse-spark-1.2 when the input has audio.
+   * Any other model is refused (models.ts).
+   */
   model?: string;
   /** Omit to let the model choose. */
   reasoningEffort?: ReasoningEffort;
-  /** Caps reasoning plus visible output tokens. */
+  /**
+   * Caps reasoning plus visible output tokens. A reply cut off at this cap
+   * fails without a retry, so leave room for reasoning.
+   */
   maxTokens?: number;
 }
 
@@ -60,6 +71,8 @@ export interface AiDeps {
   apiKey?: string;
   /** Defaults to inserting into `ai_usage`. */
   usageSink?: UsageSink;
+  /** How long the answer waits for the usage sink before giving up on it. */
+  usageTimeoutMs?: number;
   timeoutMs?: number;
 }
 
@@ -67,8 +80,8 @@ export interface AiResult<T> {
   data: T;
   model: string;
   attempts: number;
-  /** Summed over all attempts. */
-  usage: { prompt_tokens: number; completion_tokens: number };
+  /** Summed over all attempts; null if any attempt's response had no count. */
+  usage: { prompt_tokens: number | null; completion_tokens: number | null };
 }
 
 type ContentPart =
@@ -92,13 +105,18 @@ interface ChatCompletion {
     message?: { content?: unknown; refusal?: unknown };
     finish_reason?: string;
   }[];
-  usage?: { prompt_tokens?: number; completion_tokens?: number };
+  usage?: { prompt_tokens?: unknown; completion_tokens?: unknown };
 }
+
+type Reply =
+  | { data: unknown }
+  | { problem: string; retry: boolean };
 
 /**
  * Calls Muse Spark for one task and returns the reply, checked against the
- * task's schema. Retries once if the reply doesn't match, then throws
- * `invalid_output`. Logs token usage for every API call, retries included.
+ * task's schema. Retries once if the reply doesn't match (but not if it was
+ * cut off at max_tokens), then throws `invalid_output`. Logs token usage for
+ * every API call, retries included.
  *
  * The caller vouches that `T` matches `task.schema`.
  */
@@ -113,6 +131,14 @@ export async function callAi<T>(
       `task name "${task.name}" must be 1–64 letters, digits, _ or -`,
     );
   }
+  if (
+    task.maxTokens !== undefined &&
+    !(Number.isInteger(task.maxTokens) && task.maxTokens > 0)
+  ) {
+    problems.push(
+      `maxTokens must be a positive integer, not ${task.maxTokens}`,
+    );
+  }
   if (problems.length > 0) {
     throw new AiError(
       "config",
@@ -124,7 +150,7 @@ export async function callAi<T>(
   const hasAudio = Array.isArray(content) &&
     content.some((part) => part.type === "input_audio");
   const request: ChatRequest = {
-    model: task.model ?? (hasAudio ? AUDIO_MODEL : TEXT_MODEL),
+    model: task.model ?? defaultModel(hasAudio),
     messages: [
       // Fixed text first, so repeated calls pay the cached input rate.
       {
@@ -139,21 +165,25 @@ export async function callAi<T>(
     },
   };
   if (task.reasoningEffort) request.reasoning_effort = task.reasoningEffort;
-  if (task.maxTokens) request.max_tokens = task.maxTokens;
+  if (task.maxTokens !== undefined) request.max_tokens = task.maxTokens;
 
   const apiKey = deps.apiKey ?? Deno.env.get("META_API_KEY");
   if (!apiKey) throw new AiError("config", "The META_API_KEY secret isn't set");
 
   const sink = deps.usageSink ?? supabaseUsageSink();
+  const usageTimeoutMs = deps.usageTimeoutMs ?? USAGE_TIMEOUT_MS;
   const timeoutMs = deps.timeoutMs ?? DEFAULT_TIMEOUT_MS;
   const abort = new AbortController();
   const timer = setTimeout(() => abort.abort(), timeoutMs);
-  const usage = { prompt_tokens: 0, completion_tokens: 0 };
-  let problem = "";
+  const usage: AiResult<T>["usage"] = {
+    prompt_tokens: 0,
+    completion_tokens: 0,
+  };
   try {
-    for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    for (let attempt = 1;; attempt++) {
       const completion = await post(
         request,
+        hasAudio,
         apiKey,
         deps.fetch ?? fetch,
         abort.signal,
@@ -163,12 +193,15 @@ export async function callAi<T>(
         household_id: call.householdId ?? null,
         function: task.name,
         model: request.model,
-        prompt_tokens: completion.usage?.prompt_tokens ?? 0,
-        completion_tokens: completion.usage?.completion_tokens ?? 0,
+        prompt_tokens: tokenCount(completion.usage?.prompt_tokens),
+        completion_tokens: tokenCount(completion.usage?.completion_tokens),
       };
-      usage.prompt_tokens += row.prompt_tokens;
-      usage.completion_tokens += row.completion_tokens;
-      await logUsage(sink, row);
+      usage.prompt_tokens = sum(usage.prompt_tokens, row.prompt_tokens);
+      usage.completion_tokens = sum(
+        usage.completion_tokens,
+        row.completion_tokens,
+      );
+      await logUsage(sink, row, usageTimeoutMs);
 
       const reply = readReply(completion, task.schema);
       if ("data" in reply) {
@@ -179,29 +212,42 @@ export async function callAi<T>(
           usage,
         };
       }
-      problem = reply.problem;
       console.warn(
-        `[ai] ${task.name}: invalid reply on attempt ${attempt}: ${problem}`,
+        `[ai] ${task.name}: invalid reply on attempt ${attempt}: ${reply.problem}`,
       );
+      if (!reply.retry || attempt >= MAX_ATTEMPTS) {
+        throw new AiError(
+          "invalid_output",
+          `${task.name}: invalid reply after ${attempt} ${
+            attempt === 1 ? "attempt" : "attempts"
+          }: ${reply.problem}`,
+        );
+      }
     }
   } finally {
     clearTimeout(timer);
   }
-  throw new AiError(
-    "invalid_output",
-    `${task.name}: the model's reply was invalid ${MAX_ATTEMPTS} times; last problem: ${problem}`,
-  );
+}
+
+/** Null when the response didn't say, so a gap in the counts stays visible. */
+function tokenCount(value: unknown): number | null {
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+function sum(a: number | null, b: number | null): number | null {
+  return a === null || b === null ? null : a + b;
 }
 
 /** The only place that sends a request to the Meta API. */
 async function post(
   request: ChatRequest,
+  hasAudio: boolean,
   apiKey: string,
   fetchFn: typeof fetch,
   signal: AbortSignal,
   timeoutMs: number,
 ): Promise<ChatCompletion> {
-  assertAllowedModel(request.model);
+  assertAllowedModel(request.model, hasAudio);
   const timeout = () =>
     new AiError("timeout", `The Meta API didn't answer within ${timeoutMs} ms`);
   let res: Response;
@@ -239,38 +285,58 @@ async function post(
   }
 }
 
-function readReply(
-  completion: ChatCompletion,
-  schema: JsonSchema,
-): { data: unknown } | { problem: string } {
+function readReply(completion: ChatCompletion, schema: JsonSchema): Reply {
   const choice = completion.choices?.[0];
   if (choice?.finish_reason === "length") {
-    return { problem: "the reply was cut off at max_tokens" };
+    // The same budget would most likely be cut off again.
+    return {
+      problem:
+        "the reply was cut off at max_tokens; raise the task's maxTokens",
+      retry: false,
+    };
   }
   const message = choice?.message;
   if (typeof message?.refusal === "string" && message.refusal) {
-    return { problem: `the model refused: ${message.refusal}` };
+    return { problem: `the model refused: ${message.refusal}`, retry: true };
   }
   if (typeof message?.content !== "string" || !message.content.trim()) {
-    return { problem: "the reply is empty" };
+    return { problem: "the reply is empty", retry: true };
   }
   let data: unknown;
   try {
     data = JSON.parse(message.content);
   } catch {
-    return { problem: "the reply isn't valid JSON" };
+    return { problem: "the reply isn't valid JSON", retry: true };
   }
   const errors = validate(schema, data);
-  if (errors.length > 0) return { problem: errors.slice(0, 10).join("; ") };
+  if (errors.length > 0) {
+    return { problem: errors.slice(0, 10).join("; "), retry: true };
+  }
   return { data };
 }
 
-/** A lost usage row shouldn't cost the user their answer. */
-async function logUsage(sink: UsageSink, row: AiUsageRow): Promise<void> {
+/**
+ * Waits at most `timeoutMs` for the sink, so a slow, hanging or failing
+ * insert never costs the user an answer that's already valid.
+ */
+async function logUsage(
+  sink: UsageSink,
+  row: AiUsageRow,
+  timeoutMs: number,
+): Promise<void> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const logged = Promise.resolve()
+    .then(() => sink(row))
+    .catch((err) => console.error("[ai] couldn't log usage", row, err));
+  const gaveUp = new Promise<"gave up">((resolve) => {
+    timer = setTimeout(() => resolve("gave up"), timeoutMs);
+  });
   try {
-    await sink(row);
-  } catch (err) {
-    console.error("[ai] couldn't log usage", row, err);
+    if (await Promise.race([logged, gaveUp]) === "gave up") {
+      console.error(`[ai] usage log took over ${timeoutMs} ms; moving on`, row);
+    }
+  } finally {
+    clearTimeout(timer);
   }
 }
 

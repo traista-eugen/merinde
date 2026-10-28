@@ -5,7 +5,13 @@ import {
   assertStringIncludes,
   assertThrows,
 } from "jsr:@std/assert@^1";
-import { type AiDeps, type AiTask, callAi, META_API_URL } from "./client.ts";
+import {
+  type AiCall,
+  type AiDeps,
+  type AiTask,
+  callAi,
+  META_API_URL,
+} from "./client.ts";
 import { AiError } from "./errors.ts";
 import { assertAllowedModel } from "./models.ts";
 import { completion, memorySink, mockFetch } from "./testing.ts";
@@ -115,10 +121,9 @@ Deno.test("retry: an invalid first reply is retried once, then the valid one is 
   assertEquals(requests[1].body, requests[0].body);
 });
 
-Deno.test("retry: non-JSON, cut-off and refused replies all count as invalid", async () => {
+Deno.test("retry: non-JSON, refused and empty replies are retried once", async () => {
   const replies = [
     completion("Sure! Here's a dish: soup"),
-    completion(VALID.slice(0, 20), { finishReason: "length" }),
     Response.json({
       choices: [{
         message: { content: null, refusal: "No." },
@@ -132,6 +137,23 @@ Deno.test("retry: non-JSON, cut-off and refused replies all count as invalid", a
     const result = await callAi(TASK, CALL, deps);
     assertEquals(result.attempts, 2);
   }
+});
+
+Deno.test("cut off at max_tokens: fails at once, since the same budget would be cut off again", async () => {
+  const { deps, requests, rows } = setup(
+    completion(VALID.slice(0, 20), { finishReason: "length" }),
+    completion(VALID),
+  );
+
+  const err = await rejectsWith(
+    "invalid_output",
+    () => callAi({ ...TASK, maxTokens: 500 }, CALL, deps),
+  );
+
+  assertEquals(requests.length, 1);
+  assertEquals(rows.length, 1);
+  assertStringIncludes(err.message, "after 1 attempt:");
+  assertStringIncludes(err.message, "max_tokens");
 });
 
 Deno.test("invalid twice: fails with invalid_output and says why", async () => {
@@ -149,7 +171,7 @@ Deno.test("invalid twice: fails with invalid_output and says why", async () => {
 
   assertEquals(requests.length, 2);
   assertStringIncludes(err.message, "test-dish");
-  assertStringIncludes(err.message, "2 times");
+  assertStringIncludes(err.message, "after 2 attempts");
   assertStringIncludes(err.message, 'unexpected property "extra"');
 });
 
@@ -167,11 +189,51 @@ Deno.test("contributor tier: refused in code, before any request", async () => {
       "model_refused",
       () => callAi({ ...TASK, model }, CALL, deps),
     );
-    assertThrows(() => assertAllowedModel(model), AiError, "contributor");
+    for (const hasAudio of [false, true]) {
+      assertThrows(
+        () => assertAllowedModel(model, hasAudio),
+        AiError,
+        "contributor",
+      );
+    }
   }
   assertEquals(requests.length, 0);
-  assertAllowedModel("muse-spark-1.3");
-  assertAllowedModel("muse-spark-1.2");
+});
+
+Deno.test("allowlist: only 1.3 for text and images and only 1.2 for audio; anything else is a config error", async () => {
+  const { deps, requests } = setup(completion(VALID), completion(VALID));
+  const audio = [{
+    type: "audio" as const,
+    base64: "UklGRg==",
+    format: "wav" as const,
+  }];
+  const image = [{ type: "image" as const, url: "https://example.com/r.jpg" }];
+  const refused: [string, AiCall["input"]][] = [
+    ["muse-spark-1.2", "Something warm"],
+    ["muse-spark-1.2", image],
+    ["muse-spark-1.3", audio],
+    ["muse-wonder-1.0", "Something warm"],
+    ["muse-image-1.0", image],
+    ["muse-spark-1.4", "Something warm"],
+    ["", "Something warm"],
+  ];
+  for (const [model, input] of refused) {
+    await rejectsWith(
+      "config",
+      () => callAi({ ...TASK, model }, { ...CALL, input }, deps),
+    );
+  }
+  assertEquals(requests.length, 0);
+
+  await callAi({ ...TASK, model: "muse-spark-1.3" }, CALL, deps);
+  await callAi(
+    { ...TASK, model: "muse-spark-1.2" },
+    { ...CALL, input: audio },
+    deps,
+  );
+  assertEquals(requests.length, 2);
+  assertAllowedModel("muse-spark-1.3", false);
+  assertAllowedModel("muse-spark-1.2", true);
 });
 
 Deno.test("models: Spark 1.3 for text and images, 1.2 only when the input has audio", async () => {
@@ -299,6 +361,54 @@ Deno.test("usage: a failing sink doesn't fail the call", async () => {
     usageSink: () => Promise.reject(new Error("ai_usage is missing")),
   });
   assertEquals(result.data, DISH);
+});
+
+Deno.test("usage: a sink that never answers doesn't hold up or lose the answer", async () => {
+  const mock = mockFetch([completion("not json"), completion(VALID)]);
+  const started = Date.now();
+  const result = await callAi<Dish>(TASK, CALL, {
+    fetch: mock.fetch,
+    apiKey: "test-key",
+    usageSink: () => new Promise<void>(() => {}),
+    usageTimeoutMs: 20,
+  });
+  assertEquals(result.data, DISH);
+  assertEquals(result.attempts, 2);
+  assert(Date.now() - started < 1_000, "waited too long for the sink");
+});
+
+Deno.test("usage: a missing count is recorded as null, not 0", async () => {
+  const { deps, rows } = setup(
+    Response.json({
+      choices: [{ message: { content: VALID }, finish_reason: "stop" }],
+      usage: { prompt_tokens: 80 },
+    }),
+    Response.json({
+      choices: [{ message: { content: VALID }, finish_reason: "stop" }],
+    }),
+  );
+
+  const first = await callAi(TASK, CALL, deps);
+  const second = await callAi(TASK, CALL, deps);
+
+  assertEquals(
+    rows.map((r) => [r.prompt_tokens, r.completion_tokens]),
+    [[80, null], [null, null]],
+  );
+  assertEquals(first.usage, { prompt_tokens: 80, completion_tokens: null });
+  assertEquals(second.usage, { prompt_tokens: null, completion_tokens: null });
+});
+
+Deno.test("config: maxTokens must be a positive integer; 0 isn't treated as unset", async () => {
+  const { deps, requests } = setup();
+  for (const maxTokens of [0, -1, 1.5, Number.NaN]) {
+    const err = await rejectsWith(
+      "config",
+      () => callAi({ ...TASK, maxTokens }, CALL, deps),
+    );
+    assertStringIncludes(err.message, "maxTokens");
+  }
+  assertEquals(requests.length, 0);
 });
 
 Deno.test("config: a missing META_API_KEY fails before any request", async () => {

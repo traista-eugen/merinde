@@ -13,6 +13,16 @@ export {
   type ReasoningEffort,
 } from "./client.ts";
 export { AiError, type AiErrorCode, errorResponse } from "./errors.ts";
-export { assertAllowedModel, AUDIO_MODEL, TEXT_MODEL } from "./models.ts";
+export {
+  assertAllowedModel,
+  AUDIO_MODEL,
+  defaultModel,
+  TEXT_MODEL,
+} from "./models.ts";
 export { type JsonSchema, schemaProblems, validate } from "./schema.ts";
-export { type AiUsageRow, supabaseUsageSink, type UsageSink } from "./usage.ts";
+export {
+  type AiUsageRow,
+  supabaseUsageSink,
+  USAGE_TIMEOUT_MS,
+  type UsageSink,
+} from "./usage.ts";
