@@ -37,7 +37,7 @@ _Checked 2026-10-28 against Meta's docs. Pay-as-you-go prices in USD, Standard m
 
 ## Task → model
 
-All calls go through Supabase edge functions with `response_format: json_schema`. Token counts are estimates and include reasoning.
+All calls go through Supabase edge functions with `response_format: json_schema` and the app's `locale` ([0006](decisions/0006-app-languages.md)). Token counts are estimates and include reasoning.
 
 | Function | Model, effort | Tokens in / out | Cost | Notes |
 |----------|---------------|-----------------|------|-------|
@@ -45,7 +45,7 @@ All calls go through Supabase edge functions with `response_format: json_schema`
 | `recipe-edit`, `recipe-variant` | Spark 1.3, low | 3,000 / 2,000 | $0.012 | Send the current version only, never the chat history |
 | `pantry-parse` | Spark 1.3, low | 2,500 / 800 | $0.007 | Same function for typed and transcribed text |
 | `meal-plan`, 1 day / 7 days | Spark 1.3, medium | 5,000 / 4,000; 7,000 / 10,000 | $0.023 / $0.05 | Pantry sorted by expiry; returns meals and missing items |
-| `receipt-parse` | Spark 1.3 + photo, low–medium | 6,000 / 3,000 | $0.02 | Shop, date, lines, discounts; schema has no field for card or loyalty numbers |
+| `receipt-parse` | Spark 1.3 + photo, low–medium | 6,000 / 3,000 | $0.02 | Shop, date, lines, discounts and loyalty-card prices; schema has no field for card or loyalty numbers |
 | `label-read` | Spark 1.3 + photo, low | 2,000 / 400 | $0.004 | Could try Apple Vision OCR first and call AI only when that fails |
 | Stock scan (optional) | Spark 1.3 + 1–5 photos, low | 7,000 / 3,000 | $0.02 | See [Stock scan](#stock-scan-photos-not-video-for-now) |
 | Nutrition per recipe | Open Food Facts first; Spark 1.3 for gaps, low | 2,000 / 1,200 | $0.008 | Save estimates on `product.nutrition` so each product is estimated once |
@@ -54,7 +54,7 @@ All calls go through Supabase edge functions with `response_format: json_schema`
 
 ## Stock scan: photos, not video (for now)
 
-`new` in [brainstorm](brainstorm.md). How it would work:
+`new` in [brainstorm](brainstorm.md) as "Fridge photo quick-add". How it would work:
 
 1. **Capture:** the user takes 1–5 photos of a shelf or the fridge. Or they sweep the camera while the app grabs a sharp still about once a second, using an on-device blur check. Convert HEIC to JPEG, ~1,600 px.
 2. **One AI call:** Spark 1.3 gets all the photos, the current pantry and candidate products.
@@ -96,6 +96,7 @@ All calls go through Supabase edge functions with `response_format: json_schema`
 
 - About $100 is left after the hackathon: roughly 20 months for one family, or about 600 household-days of use.
 - High reasoning effort can triple output tokens, so plan for up to ~$15 per family per month.
+- Per-household AI limits (`new` in brainstorm) keep other households from using up the credit.
 - Contributor tier would be 12–20× cheaper, but Meta may train on what we send, so it's ruled out.
 
 ## Integration notes
